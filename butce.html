@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Neslihan'ın Bütçesi</title>
+  <!-- Başlık yazı tipleri (internet yoksa yerine benzer yazı tipleri kullanılır) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@700&display=swap">
+
+  <!-- ============ 1) CSS: SAYFANIN GÖRÜNÜŞÜ ============ -->
+  <style>
+    /* Tema renkleri burada tek yerde duruyor.
+       Bir rengi değiştirmek istersen sadece buradan değiştirmen yeterli.
+       (Değişken adlarında "mor" kaldı ama artık pudra pembe tonları.) */
+    :root {
+      --kart: #fffdf9;       /* kartların içi: krem beyaz */
+      --kenar: #efe2d8;      /* kartların ince kenarı */
+      --mor: #c98a83;        /* ana renk: pudra / gül pembesi (butonlar, çubuklar) */
+      --mor-koyu: #a9665f;   /* koyu gül: başlıklar, butonun üzerine gelince */
+      --mor-acik: #f5e4df;   /* çubukların boş kısmı, kenarlıklar */
+      --adacayi: #7d9468;    /* adaçayı yeşili: büyük başlık */
+      --yazi: #4a3a35;       /* sıcak koyu kahve yazı */
+      --soluk: #93827a;      /* küçük, ikincil yazılar */
+      --yesil: #6f8a5c;      /* gelir (+) */
+      --kirmizi: #c2594f;    /* gider (-) ve uyarılar */
+    }
+
+    /* Arka plan: krem kâğıt, köşelerde suluboya gibi pembe ve yeşil lekeler,
+       üstünde küçük çizimler (kalp, yaprak, bozuk para, kurdele, puantiye) */
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      color: var(--yazi);
+      background-color: #fbf5ee;
+      background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='340' height='340'><g opacity='0.55'><path transform='translate(30 40) scale(1.1)' d='M10 17 L2.6 9.6 A4.6 4.6 0 0 1 10 3.6 A4.6 4.6 0 0 1 17.4 9.6 Z' fill='%23e8aaa1'/><g transform='translate(250 30) rotate(20) scale(1)'><path d='M0 0 Q4 25 0 52' stroke='%238a9c76' stroke-width='1.5' fill='none'/><g fill='%239fb08a'><ellipse cx='-7' cy='12' rx='7' ry='3.5' transform='rotate(-30 -7 12)'/><ellipse cx='8' cy='22' rx='7' ry='3.5' transform='rotate(30 8 22)'/><ellipse cx='-6' cy='33' rx='7' ry='3.5' transform='rotate(-30 -6 33)'/><ellipse cx='7' cy='44' rx='6' ry='3' transform='rotate(30 7 44)'/></g></g><g transform='translate(120 235)'><circle r='11' fill='%23dcb97c'/><circle r='7.5' fill='none' stroke='%23c49d5c' stroke-width='1.2'/></g><g transform='translate(275 205) rotate(-8)'><path d='M-2 3 L-8 15 M2 3 L8 15' stroke='%23e8aaa1' stroke-width='2.5' stroke-linecap='round'/><ellipse cx='-9' cy='0' rx='9' ry='6' transform='rotate(-15 -9 0)' fill='%23e8aaa1'/><ellipse cx='9' cy='0' rx='9' ry='6' transform='rotate(15 9 0)' fill='%23e8aaa1'/><circle r='3.5' fill='%23d98f86'/></g><circle cx='180' cy='90' r='2.5' fill='%23e8aaa1'/><circle cx='195' cy='101' r='2' fill='%239fb08a'/><circle cx='171' cy='108' r='1.8' fill='%23dcb97c'/><path transform='translate(60 290)' d='M0 -6 L1.5 -1.5 L6 0 L1.5 1.5 L0 6 L-1.5 1.5 L-6 0 L-1.5 -1.5Z' fill='%23dcb97c'/><path transform='translate(295 300) scale(0.6)' d='M10 17 L2.6 9.6 A4.6 4.6 0 0 1 10 3.6 A4.6 4.6 0 0 1 17.4 9.6 Z' fill='%239fb08a'/><circle cx='30' cy='170' r='2' fill='%23e8aaa1'/><circle cx='42' cy='180' r='1.6' fill='%23e8aaa1'/><circle cx='24' cy='186' r='1.4' fill='%239fb08a'/></g></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='430' height='430'><g opacity='0.45'><g transform='translate(90 300) rotate(-35) scale(0.8)'><path d='M0 0 Q4 25 0 52' stroke='%238a9c76' stroke-width='1.5' fill='none'/><g fill='%239fb08a'><ellipse cx='-7' cy='12' rx='7' ry='3.5' transform='rotate(-30 -7 12)'/><ellipse cx='8' cy='22' rx='7' ry='3.5' transform='rotate(30 8 22)'/><ellipse cx='-6' cy='33' rx='7' ry='3.5' transform='rotate(-30 -6 33)'/><ellipse cx='7' cy='44' rx='6' ry='3' transform='rotate(30 7 44)'/></g></g><path transform='translate(320 110) scale(0.8)' d='M10 17 L2.6 9.6 A4.6 4.6 0 0 1 10 3.6 A4.6 4.6 0 0 1 17.4 9.6 Z' fill='%23e8aaa1'/><g transform='translate(380 380)'><circle r='8' fill='%23dcb97c'/><circle r='5.4' fill='none' stroke='%23c49d5c' stroke-width='1.2'/></g><path transform='translate(200 40)' d='M0 -6 L1.5 -1.5 L6 0 L1.5 1.5 L0 6 L-1.5 1.5 L-6 0 L-1.5 -1.5Z' fill='%23e8aaa1'/><circle cx='220' cy='250' r='2.2' fill='%239fb08a'/><circle cx='232' cy='262' r='1.6' fill='%23dcb97c'/><path transform='translate(150 160) scale(0.5)' d='M10 17 L2.6 9.6 A4.6 4.6 0 0 1 10 3.6 A4.6 4.6 0 0 1 17.4 9.6 Z' fill='%23d98f86'/></g></svg>"),
+        radial-gradient(ellipse at 0% 0%, #f6d6cd 0, transparent 40%),
+        radial-gradient(ellipse at 100% 0%, #e3e8d6 0, transparent 38%),
+        radial-gradient(ellipse at 100% 100%, #f3dcd4 0, transparent 40%),
+        radial-gradient(ellipse at 0% 100%, #dfe6d3 0, transparent 40%);
+      background-size: 340px 340px, 430px 430px, auto, auto, auto, auto;
+      background-position: 0 0, 170px 120px, 0 0, 0 0, 0 0, 0 0;
+      background-attachment: fixed;
+    }
+    /* Üstüne çok hafif bir kâğıt dokusu: suluboya kâğıdı gibi dursun */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.3;
+      mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.35  0 0 0 0 0.3  0 0 0 0.25 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+
+    .kutu {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Başlık kartı: kesikli çerçeveli etiket, üstte kurdele */
+    .baslik {
+      position: relative;
+      text-align: center;
+      background: var(--kart);
+      border: 1.5px dashed #e3b9b1;
+      border-radius: 18px;
+      padding: 26px 15px 16px;
+      margin: 18px 0 20px;
+      box-shadow: 0 1px 3px rgba(80, 50, 30, 0.06);
+    }
+    .baslik .kurdele { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); }
+    .baslik-isim {
+      font-family: "Dancing Script", "Segoe Script", cursive;
+      font-size: 30px;
+      color: var(--mor);
+      line-height: 1;
+    }
+    h1 {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 44px;
+      letter-spacing: 3px;
+      color: var(--adacayi);
+      margin: 2px 0 6px;
+    }
+    .baslik-alt { font-size: 13px; color: var(--soluk); letter-spacing: 0.5px; }
+    h3 { color: var(--mor-koyu); margin: 0 0 10px; }
+    h3.beyaz { color: var(--mor-koyu); margin-top: 20px; }
+
+    /* Kutuların ortak görünüşü */
+    .panel, .kart, form, #liste li {
+      background: var(--kart);
+      border: 1px solid var(--kenar);
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(80, 50, 30, 0.06);
+    }
+    .panel { padding: 15px; margin-bottom: 20px; }
+
+    /* Dönem seçimi: Aylık / Haftalık düğmeleri + seçme kutusu */
+    .donem {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .anahtar { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid var(--mor-acik); }
+    .anahtar button {
+      background: white;
+      color: var(--mor);
+      border-radius: 0;
+      padding: 8px 14px;
+    }
+    .anahtar button.secili { background: var(--mor); color: white; }
+    .donem select { flex: 1; min-width: 180px; }
+
+    /* Bütçe sorusu ve bütçe durumu */
+    #butceSoru { border: 2px dashed var(--mor); }
+    #butceSoru p { margin: 0 0 10px; font-size: 17px; font-weight: bold; color: var(--mor-koyu); }
+    .satir-form { display: flex; gap: 8px; flex-wrap: wrap; }
+    .satir-form input { flex: 1; min-width: 140px; }
+    .butce-ust { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .butce-rakamlar { display: flex; gap: 10px; margin-top: 10px; text-align: center; }
+    .butce-rakamlar div { flex: 1; font-size: 13px; color: var(--soluk); }
+    .butce-rakamlar strong { display: block; font-size: 17px; color: var(--yazi); }
+    .kucuk-buton { padding: 5px 10px; font-size: 13px; }
+    .cubuk.buyuk { height: 12px; border-radius: 6px; }
+
+    /* Üstteki üç özet kartı */
+    .ozet {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .kart {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+    }
+    .kart span { display: block; font-size: 20px; font-weight: bold; margin-top: 5px; }
+    .yesil { color: var(--yesil); }
+    .kirmizi { color: var(--kirmizi); }
+
+    /* Limit / bütçe aşıldı uyarı kutusu */
+    #uyari {
+      display: none;
+      background: #fdecec;
+      border: 1px solid var(--kirmizi);
+      color: var(--kirmizi);
+      padding: 12px 15px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    /* Hızlı Ekle: telefonda parmakla rahat basılsın diye büyük */
+    .hizli { border: 1.5px solid #ecc9c2; }
+    .bugun { text-align: center; margin-bottom: 12px; }
+    .bugun span { display: block; font-size: 13px; color: var(--soluk); }
+    .bugun strong { display: block; font-size: 32px; color: var(--kirmizi); margin: 2px 0; }
+    .bugun small { color: var(--soluk); font-size: 12px; }
+    .hizli-tutar {
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 24px;
+      padding: 14px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .hizli-tutar.hata { outline: 2px solid var(--kirmizi); border-color: transparent; }
+    .hizli-dugmeler {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .hizli-dugme {
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: #fbefea;
+      color: var(--yazi);
+      border: 1px solid var(--kenar);
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      touch-action: manipulation; /* telefonda çift dokunma yakınlaştırmasın */
+    }
+    .hizli-dugme:hover { background: var(--mor-acik); }
+    .hizli-dugme:active { transform: scale(0.96); background: #f2d9d2; }
+    .hizli-dugme .emoji { font-size: 28px; line-height: 1; }
+    .hizli-not { width: 100%; box-sizing: border-box; font-size: 14px; padding: 9px; }
+
+    /* ---------- SEKMELER ve ALT MENÜ ---------- */
+    /* Alt menü sayfanın altını kapatmasın diye altta boşluk bırak */
+    body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+    .sekme { display: none; }
+    .sekme.aktif { display: block; }
+    .sekme-baslik {
+      font-family: "Playfair Display", Georgia, serif;
+      color: var(--adacayi);
+      text-align: center;
+      font-size: 26px;
+      margin: 6px 0 14px;
+    }
+    .alt-menu {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 50;
+      background: #fffaf5;
+      border-top: 1px solid var(--kenar);
+      box-shadow: 0 -2px 12px rgba(80, 50, 30, 0.07);
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+    }
+    .alt-menu-ic { display: flex; gap: 4px; width: 100%; max-width: 600px; }
+    .alt-menu button, .alt-menu button:hover {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 0;
+      background: none;
+      color: var(--soluk);
+      font-size: 12px;
+      border-radius: 12px;
+      touch-action: manipulation;
+    }
+    .alt-menu button .ikon { font-size: 22px; line-height: 1; filter: grayscale(0.7); opacity: 0.7; }
+    .alt-menu button.aktif { background: var(--mor-acik); color: var(--mor-koyu); font-weight: 600; }
+    .alt-menu button.aktif .ikon { filter: none; opacity: 1; }
+
+    /* "Geri al" bildirimi: alt menünün üstünde, her zaman TEK SATIR */
+    .geri-al {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: calc(80px + env(safe-area-inset-bottom));
+      width: calc(100% - 32px);
+      max-width: 560px;
+      box-sizing: border-box;
+      z-index: 60;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px 8px 16px;
+      border-radius: 12px;
+      background: #4a3a35;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(60, 30, 20, 0.25);
+    }
+    .geri-al.goster { display: flex; }
+    .geri-al .yazi {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
+      white-space: nowrap;        /* yazı uzunsa ... ile kısalır, alt satıra inmez */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .geri-al button, .geri-al button:hover {
+      flex-shrink: 0;             /* buton hiç daralmaz */
+      white-space: nowrap;        /* "Geri al" tek satırda kalır */
+      background: rgba(255, 255, 255, 0.12);
+      color: #f6c9c1;
+      font-weight: 700;
+      padding: 8px 14px;
+    }
+
+    /* Gelir kaynakları listesi */
+    .gelir-satir { padding: 7px 0; }
+    .gelir-satir + .gelir-satir { border-top: 1px solid var(--kenar); }
+    .gelir-ust { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
+    .gelir-ust small { color: var(--soluk); }
+    .gelir-satir .cubuk div { background: var(--yesil); }
+    .gelir-toplam { display: flex; justify-content: space-between; font-weight: 600; padding-top: 8px; border-top: 1px solid var(--kenar); margin-top: 4px; }
+
+    /* Limit satırları */
+    .limit-ust .sil { padding: 0 4px; }
+    #limitFormu select { flex: 1; min-width: 140px; }
+
+    /* Dar ekranda (telefon) özet kartları ve başlıklar sığsın */
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .ozet { gap: 6px; }
+      .kart { padding: 12px 4px; font-size: 13px; }
+      .kart span { font-size: 15px; white-space: nowrap; }
+      .butce-ust { flex-wrap: wrap; }
+      .butce-ust h3 { white-space: nowrap; }
+    }
+
+    /* Harcama takvimi (ısı haritası) */
+    .takvim { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .takvim .gun-adi { text-align: center; font-size: 11px; color: var(--soluk); padding-bottom: 2px; }
+    .takvim button.gun, .takvim button.gun:hover {
+      aspect-ratio: 1;
+      min-width: 0;
+      padding: 2px;
+      border-radius: 8px;
+      background: var(--hucre);
+      color: var(--hucre-yazi);
+      border: 1px solid rgba(80, 50, 30, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1.15;
+      touch-action: manipulation;
+    }
+    .takvim button.gun:hover { filter: brightness(0.96); }
+    .takvim button.gun small { font-size: 9px; opacity: 0.9; }
+    .takvim button.gun.bugun-hucre { border: 2px solid var(--adacayi); }
+    .takvim button.gun.secili { outline: 2px solid var(--yazi); outline-offset: 1px; }
+    .isi-lejant { display: flex; align-items: center; justify-content: flex-end; gap: 3px; font-size: 11px; color: var(--soluk); margin-top: 8px; }
+    .isi-lejant i { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+    .gun-detay { margin-top: 10px; }
+    .gun-detay:empty { display: none; }
+    .gun-detay .baslik-satir { font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .gun-detay .kalem { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid var(--kenar); font-size: 14px; }
+    .gun-detay .kalem small { color: var(--soluk); }
+
+    /* Tekrarlayan işlemler */
+    .tekrar-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .tekrar-form button { grid-column: 1 / -1; }
+    .tekrar-form .gun-sec, .tekrar-form .onay { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--soluk); }
+    .onay input { width: 18px; height: 18px; accent-color: var(--mor); }
+    @media (max-width: 480px) { .tekrar-form { grid-template-columns: 1fr; } }
+    .tekrar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--kenar); font-size: 14px; }
+    .tekrar small { color: var(--soluk); display: block; }
+
+    /* Aylık özet raporu: üç küçük kutu yan yana */
+    .rapor { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .rapor > div { background: #fbefea; border-radius: 10px; padding: 12px 8px; text-align: center; }
+    .rapor span { display: block; font-size: 12px; color: var(--soluk); }
+    .rapor strong { display: block; font-size: 17px; margin: 4px 0 2px; }
+    .rapor small { display: block; font-size: 11px; color: var(--soluk); line-height: 1.35; }
+    @media (max-width: 480px) { .rapor { grid-template-columns: 1fr; } }
+
+    /* Birikim hedefleri */
+    .hedef { padding: 12px 0; border-bottom: 1px solid var(--kenar); }
+    .hedef:last-child { border-bottom: none; padding-bottom: 0; }
+    .hedef .satir-form { margin-top: 8px; }
+    .hedef .satir-form input { padding: 7px; font-size: 14px; }
+    .hedef .satir-form button { padding: 7px 12px; font-size: 14px; }
+    .cubuk.tamam div { background: var(--yesil); }
+    button.ikincil { background: white; color: var(--mor); border: 1px solid var(--mor-acik); }
+    button.ikincil:hover { background: var(--mor-acik); }
+    #hedefFormu { margin-bottom: 4px; }
+
+    /* Burs günü kutusu */
+    .burs-mesaj { font-size: 17px; margin: 10px 0 4px; }
+    .burs-mesaj strong { color: var(--mor-koyu); }
+    .gun-sec { font-size: 14px; color: var(--soluk); white-space: nowrap; }
+    .gun-sec input { width: 60px; padding: 6px; font-size: 14px; text-align: center; }
+
+    /* Pasta grafik + yanındaki açıklama listesi */
+    .grafik-alani {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .lejant { list-style: none; padding: 0; margin: 0; flex: 1; min-width: 180px; }
+    .lejant li { padding: 4px 0; font-size: 14px; }
+    .renk-kare {
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 3px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .bos-mesaj { text-align: center; color: var(--soluk); }
+
+    /* Kategori limitleri */
+    .limit-satir { margin-bottom: 12px; }
+    .limit-ust {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+    .limit-ust input { width: 110px; padding: 6px; font-size: 14px; }
+    .cubuk {
+      height: 8px;
+      background: var(--mor-acik);
+      border-radius: 4px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    .cubuk div {
+      height: 100%;
+      width: 0;
+      background: var(--mor);
+      border-radius: inherit;
+    }
+    .cubuk.asildi div { background: var(--kirmizi); }
+    .limit-alt { font-size: 12px; color: var(--soluk); margin-top: 3px; }
+    .limit-alt.asildi { color: var(--kirmizi); font-weight: bold; }
+
+    /* Ekleme formu */
+    form {
+      padding: 15px;
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      padding: 10px;
+      font-size: 15px;
+      border: 1px solid var(--mor-acik);
+      border-radius: 8px;
+      color: var(--yazi);
+      font-family: inherit;
+      background: white;
+    }
+    input:focus, select:focus { outline: 2px solid var(--mor); border-color: transparent; }
+    button {
+      background: var(--mor);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover { background: var(--mor-koyu); }
+
+    /* İşlem listesi */
+    ul { list-style: none; padding: 0; }
+    #liste li {
+      margin-bottom: 8px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 5px solid var(--mor-acik);
+    }
+    #liste li.gelir { border-left-color: var(--yesil); }
+    #liste li.gider { border-left-color: var(--kirmizi); }
+    li small { color: var(--soluk); }
+    .sil {
+      background: none;
+      color: var(--soluk);
+      font-size: 18px;
+      padding: 0 6px;
+    }
+    .sil:hover { color: var(--kirmizi); background: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ 2) HTML: SAYFANIN İSKELETİ ============ -->
+  <div class="kutu">
+
+    <!-- =============== SEKME 1: BUGÜN =============== -->
+    <section class="sekme" id="sekme-bugun">
+      <!-- Başlık -->
+      <header class="baslik">
+        <svg class="kurdele" width="64" height="34" viewBox="-32 -14 64 34" aria-hidden="true">
+          <path d="M-3 4 L-12 18 M3 4 L12 18" stroke="#e3a59d" stroke-width="4" stroke-linecap="round"/>
+          <ellipse cx="-14" cy="0" rx="14" ry="9" transform="rotate(-12 -14 0)" fill="#efbcb4"/>
+          <ellipse cx="14" cy="0" rx="14" ry="9" transform="rotate(12 14 0)" fill="#efbcb4"/>
+          <circle r="5" fill="#d98f86"/>
+        </svg>
+        <div class="baslik-isim">Neslihan'ın</div>
+        <h1>BÜTÇESİ</h1>
+        <div class="baslik-alt">Planla • Tasarruf Et • Hedeflerine Ulaş ♡</div>
+      </header>
+
+      <!-- HIZLI EKLE: tutarı yaz, kategoriye dokun, bugünün tarihiyle eklensin -->
+      <div class="panel hizli">
+        <div class="bugun">
+          <span>Bugün harcadığın</span>
+          <strong id="bugunToplam">0,00 ₺</strong>
+          <small id="bugunAdet"></small>
+        </div>
+        <input id="hizliTutar" class="hizli-tutar" type="number" inputmode="decimal"
+               min="0.01" step="0.01" placeholder="Tutar (₺)">
+        <div class="hizli-dugmeler" id="hizliDugmeler"></div>
+        <input id="hizliNot" class="hizli-not" type="text" placeholder="Not (isteğe bağlı)">
+      </div>
+
+      <!-- Limit veya bütçe aşılınca burada kırmızı uyarı çıkar -->
+      <div id="uyari"></div>
+
+      <!-- Bütçe henüz girilmemişse bu soru çıkar -->
+      <div class="panel" id="butceSoru">
+        <p id="butceSoruYazi">💸 Bu ay için bütçen ne kadar?</p>
+        <div class="satir-form">
+          <input id="butceGir" type="number" min="1" step="1" placeholder="Bütçe (₺)">
+          <button type="button" id="butceKaydet">Kaydet</button>
+          <!-- Sadece mevcut bütçeyi değiştirirken görünür -->
+          <button type="button" class="ikincil" id="butceVazgec" style="display:none">Vazgeç</button>
+        </div>
+      </div>
+
+      <!-- Bütçe girildiyse durumu burada görünür -->
+      <div class="panel" id="butceDurum" style="display:none">
+        <div class="butce-ust">
+          <h3 id="butceBaslik" style="margin:0">Bütçe</h3>
+          <button type="button" class="kucuk-buton" id="butceDegistir">Değiştir</button>
+        </div>
+        <div class="cubuk buyuk" id="butceCubuk"><div></div></div>
+        <div class="butce-rakamlar">
+          <div>Bütçe<strong id="bButce">0 ₺</strong></div>
+          <div>Harcanan<strong id="bHarcanan">0 ₺</strong></div>
+          <div>Kalan<strong id="bKalan">0 ₺</strong></div>
+        </div>
+      </div>
+
+      <!-- Burs günü: kaç gün kaldı, günde ne kadar harcayabilirim -->
+      <div class="panel" id="bursPanel">
+        <div class="butce-ust">
+          <h3 style="margin:0">🎓 Burs Günü</h3>
+          <label class="gun-sec">Her ayın
+            <input id="bursGun" type="number" min="1" max="31" placeholder="–"> . günü
+          </label>
+        </div>
+        <p class="burs-mesaj" id="bursMesaj"></p>
+        <p class="limit-alt" id="bursAlt" style="margin:0"></p>
+      </div>
+    </section>
+
+    <!-- Diğer sekmelerin başlığı (Bugün sekmesinde gizli; orada büyük başlık var) -->
+    <h2 class="sekme-baslik" id="sekmeBaslik"></h2>
+
+    <!-- Dönem seçimi: sadece İşlemler ve Analiz sekmelerinde görünür -->
+    <div class="panel donem" id="donemPanel">
+      <div class="anahtar">
+        <button type="button" id="btnAylik">Aylık</button>
+        <button type="button" id="btnHaftalik">Haftalık</button>
+      </div>
+      <select id="donemSec"></select>
+    </div>
+
+    <!-- =============== SEKME 2: İŞLEMLER =============== -->
+    <section class="sekme" id="sekme-islemler">
+      <!-- Özet kartları -->
+      <div class="ozet">
+        <div class="kart">Gelir<span id="toplamGelir" class="yesil">0 ₺</span></div>
+        <div class="kart">Gider<span id="toplamGider" class="kirmizi">0 ₺</span></div>
+        <div class="kart"><div id="bakiyeEtiket">Bu ayın bakiyesi</div><span id="bakiye">0 ₺</span></div>
+      </div>
+
+      <!-- Yeni işlem ekleme formu (detaylı) -->
+      <form id="form">
+        <h3 style="margin:0">➕ Yeni İşlem</h3>
+        <select id="tur">
+          <option value="gider">Gider</option>
+          <option value="gelir">Gelir</option>
+        </select>
+        <input id="aciklama" type="text" placeholder="Açıklama (isteğe bağlı)">
+        <input id="tutar" type="number" placeholder="Tutar (₺)" min="0.01" step="0.01" required>
+        <!-- Seçenekler JavaScript ile doldurulur: Gider seçiliyse harcama,
+             Gelir seçiliyse gelir kategorileri çıkar -->
+        <select id="kategori"></select>
+        <input id="tarih" type="date" required title="İşlemin tarihi">
+        <button type="submit">+ Ekle</button>
+      </form>
+
+      <h3 class="beyaz">🧾 İşlemler</h3>
+      <ul id="liste"></ul>
+    </section>
+
+    <!-- =============== SEKME 3: ANALİZ =============== -->
+    <section class="sekme" id="sekme-analiz">
+      <!-- Aylık özet raporu -->
+      <div class="panel">
+        <h3 id="raporBaslik">Aylık Özet</h3>
+        <div class="rapor">
+          <div><span>En çok harcanan</span><strong id="rEnCok">–</strong><small id="rEnCokAlt"></small></div>
+          <div><span>Geçen aya göre</span><strong id="rDegisim">–</strong><small id="rDegisimAlt"></small></div>
+          <div><span>Günlük ortalama</span><strong id="rGunluk">–</strong><small id="rGunlukAlt"></small></div>
+        </div>
+      </div>
+
+      <!-- Harcama takvimi (ısı haritası) -->
+      <div class="panel">
+        <h3 id="takvimBaslik">📅 Harcama Takvimi</h3>
+        <div class="takvim" id="takvim"></div>
+        <div class="isi-lejant">
+          Az <i style="background:#f6d9d1"></i><i style="background:#eab3a8"></i><i style="background:#d48a80"></i><i style="background:#a9665f"></i> Çok
+        </div>
+        <div id="gunDetay" class="gun-detay"></div>
+      </div>
+
+      <!-- Pasta grafik: harcamalar -->
+      <div class="panel">
+        <h3>Harcamalar (kategoriye göre)</h3>
+        <div class="grafik-alani">
+          <canvas id="pasta" width="220" height="220"></canvas>
+          <ul id="lejant" class="lejant"></ul>
+        </div>
+      </div>
+
+      <!-- Gelirler: kaynaklara göre basit liste -->
+      <div class="panel">
+        <h3>Gelirler (kaynağa göre)</h3>
+        <div id="gelirListesi"></div>
+      </div>
+    </section>
+
+    <!-- =============== SEKME 4: AYARLAR =============== -->
+    <section class="sekme" id="sekme-ayarlar">
+      <!-- Kategori limitleri: sadece limit konmuş kategoriler görünür -->
+      <div class="panel">
+        <div class="butce-ust">
+          <h3 style="margin:0">🚦 Aylık Kategori Limitleri</h3>
+          <button type="button" class="kucuk-buton" id="limitEkleDugme">+ Limit ekle</button>
+        </div>
+        <p id="limitAciklama" class="limit-alt" style="margin:4px 0 10px"></p>
+        <div class="satir-form" id="limitFormu" style="display:none; margin-bottom:12px">
+          <select id="limitKategori"></select>
+          <input id="limitTutar" type="number" min="1" step="1" placeholder="Limit (₺)">
+          <button type="button" id="limitKaydet">Kaydet</button>
+          <button type="button" class="ikincil" id="limitVazgec">Vazgeç</button>
+        </div>
+        <div id="limitler"></div>
+      </div>
+
+      <!-- Tekrarlayan gelir/giderler -->
+      <div class="panel">
+        <h3>🔁 Tekrarlayan Gelir / Giderler</h3>
+        <p class="limit-alt" style="margin:-5px 0 10px">
+          Her ay aynı gün otomatik eklenir (sayfayı açtığında, zamanı gelmiş olanlar eklenir).
+        </p>
+        <div class="tekrar-form">
+          <select id="tTur">
+            <option value="gider">Gider</option>
+            <option value="gelir">Gelir</option>
+          </select>
+          <select id="tKategori"></select>
+          <input id="tAciklama" type="text" placeholder="Açıklama (isteğe bağlı, ör. Kira)">
+          <input id="tTutar" type="number" min="0.01" step="0.01" placeholder="Tutar (₺)">
+          <label class="gun-sec">Her ayın
+            <input id="tGun" type="number" min="1" max="31" placeholder="–"> . günü
+          </label>
+          <label class="onay"><input type="checkbox" id="tBuAy" checked> Bu aydan başlasın</label>
+          <button type="button" id="tEkle">+ Tekrarlayan Ekle</button>
+        </div>
+        <div id="tekrarListesi"></div>
+      </div>
+
+      <!-- Birikim hedefleri -->
+      <div class="panel">
+        <h3>🎯 Birikim Hedefleri</h3>
+        <div class="satir-form" id="hedefFormu">
+          <input id="hedefAd" type="text" placeholder="Hedef adı (ör. Yaz tatili)">
+          <input id="hedefTutar" type="number" min="1" step="1" placeholder="Tutar (₺)">
+          <button type="button" id="hedefEkle">Hedef Ekle</button>
+        </div>
+        <div id="hedefListesi"></div>
+      </div>
+
+      <!-- Yedekleme: tüm verileri tek dosyaya indir / dosyadan geri yükle -->
+      <div class="panel">
+        <h3>💾 Yedekleme</h3>
+        <p class="limit-alt" style="margin:0 0 10px">
+          Tüm verilerin (işlemler, bütçe, limitler, hedefler, tekrarlayanlar, burs günü) tek bir dosyaya kaydedilir.
+        </p>
+        <div class="satir-form">
+          <button type="button" id="yedekIndir">⬇️ Yedeği indir</button>
+          <button type="button" class="ikincil" id="yedekYukleDugme">⬆️ Yedekten geri yükle</button>
+          <input type="file" id="yedekDosya" accept=".json,application/json" style="display:none">
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- "Geri al" bildirimi: alt menünün hemen üstünde çıkar -->
+  <div class="geri-al" id="geriAl" role="status">
+    <span class="yazi"></span>
+    <button type="button">Geri al</button>
+  </div>
+
+  <!-- Ekranın altında sabit menü -->
+  <nav class="alt-menu">
+    <div class="alt-menu-ic">
+      <button type="button" data-sekme="bugun"><span class="ikon">🏠</span>Bugün</button>
+      <button type="button" data-sekme="islemler"><span class="ikon">🧾</span>İşlemler</button>
+      <button type="button" data-sekme="analiz"><span class="ikon">📊</span>Analiz</button>
+      <button type="button" data-sekme="ayarlar"><span class="ikon">⚙️</span>Ayarlar</button>
+    </div>
+  </nav>
+
+  <!-- ============ 3) JAVASCRIPT: SAYFANIN BEYNİ ============ -->
+  <script>
+    // Tarayıcının hafızasından bir şeyi okur; yoksa verilen varsayılanı döndürür
+    function hafizadanOku(ad, varsayilan) {
+      try { return JSON.parse(localStorage.getItem(ad)) || varsayilan; }
+      catch (e) { return varsayilan; }
+    }
+
+    // Tüm işlemler (liste)
+    let islemler = hafizadanOku("islemler", []);
+    // Kategori limitleri. Örnek: { "Yemek": 3000, "Eğlence": 1000 }
+    let limitler = hafizadanOku("limitler", {});
+    // Genel bütçe: aylık ve haftalık ayrı. Örnek: { ay: 10000, hafta: 2500 }
+    let butce = hafizadanOku("butce", {});
+    // Şu an aylık mı haftalık mı bakıyoruz? ("ay" ya da "hafta")
+    let mod = hafizadanOku("mod", "ay");
+    // Bursun her ay yattığı gün (1–31). Girilmemişse boş.
+    let bursGunu = hafizadanOku("bursGunu", null);
+    // Birikim hedefleri. Örnek: [{ ad: "Yaz tatili", hedef: 5000, biriken: 1200 }]
+    let hedefler = hafizadanOku("hedefler", []);
+    // Tekrarlayan işlemler. Örnek:
+    // [{ id: "t1", tur: "gider", aciklama: "Kira", tutar: 3000, kategori: "Yurt / Ev Kirası",
+    //    gun: 1, baslangic: "2026-11", sonEklenen: "2026-11" }]
+    let tekrarlar = hafizadanOku("tekrarlar", []);
+
+    // Limit konabilecek (harcama) kategorileri
+    // (üniversite öğrencisine göre)
+    const giderKategorileri = [
+      "Yemekhane", "Kafe / Dışarıda Yemek", "Market", "Ulaşım / Akbil", "Fotokopi / Kırtasiye",
+      "Kitap", "Yurt / Ev Kirası", "Fatura", "Telefon / İnternet",
+      "Eğlence", "Giyim", "Abonelikler", "Diğer"
+    ];
+
+    // Gelir kaynakları (üniversite öğrencisine göre)
+    const gelirKategorileri = ["KYK Bursu", "Özel Burs", "Aile Harçlığı", "Part-time İş", "Diğer Gelir"];
+
+    // Harcama grafiğindeki dilimlerin renkleri (pembe-gül-toprak tonları; 12 kategori için 12 renk)
+    const morTonlari = [
+      "#a9665f", "#c98a83", "#e2b1a8", "#b8796b", "#d9a38f", "#8c5a55",
+      "#f0cfc7", "#c79b7f", "#a07f78", "#e5c3b3", "#bf8f95", "#d8b79a", "#9e8a7e"
+    ];
+
+    // Türe göre (gider/gelir) kategori kutusunu doldurur
+    // (Hem detaylı formda hem tekrarlayan işlem formunda kullanılıyor)
+    function kategorileriDoldur(turId = "tur", kategoriId = "kategori") {
+      const tur = document.getElementById(turId).value;
+      const liste = tur === "gelir" ? gelirKategorileri : giderKategorileri;
+      document.getElementById(kategoriId).innerHTML = liste.map(k => `<option>${k}</option>`).join("");
+    }
+    document.getElementById("tur").addEventListener("change", () => kategorileriDoldur());
+    document.getElementById("tTur").addEventListener("change", () => kategorileriDoldur("tTur", "tKategori"));
+
+    // Sayfadaki elemanları değişkenlere bağlıyoruz
+    const form = document.getElementById("form");
+    const liste = document.getElementById("liste");
+    const donemSec = document.getElementById("donemSec");
+    const tarihKutusu = document.getElementById("tarih");
+
+    // Sayıyı "1.250,00 ₺" gibi Türk formatında yazdırır
+    function paraYaz(sayi) {
+      return sayi.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
+    }
+
+    // Bir tarihi "2026-11-18" biçimine çevirir
+    function isoYaz(t) {
+      return t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
+    }
+    function bugun() { return isoYaz(new Date()); }
+
+    // "18.11.2026" yazısını gerçek bir tarihe çevirir
+    function tarihOku(tarih) {
+      const [gun, ay, yil] = tarih.split(".");
+      return new Date(yil, ay - 1, gun);
+    }
+
+    // Ay anahtarı: "18.11.2026" → "2026-11"
+    function ayAnahtari(tarih) {
+      return isoYaz(tarihOku(tarih)).slice(0, 7);
+    }
+
+    // Hafta anahtarı: o haftanın PAZARTESİ günü. "18.11.2026" → "2026-11-16"
+    function haftaAnahtari(tarih) {
+      const t = tarihOku(tarih);
+      const kacGunGeride = (t.getDay() + 6) % 7; // Pazartesi=0, Pazar=6
+      t.setDate(t.getDate() - kacGunGeride);
+      return isoYaz(t);
+    }
+
+    // Seçili moda göre bir tarihin hangi döneme ait olduğunu verir
+    function donemAnahtari(tarih, hangiMod) {
+      return hangiMod === "hafta" ? haftaAnahtari(tarih) : ayAnahtari(tarih);
+    }
+
+    // "2026-11" → "Kasım 2026"
+    function ayAdi(anahtar) {
+      const [yil, ay] = anahtar.split("-");
+      const ad = new Date(yil, ay - 1, 1).toLocaleDateString("tr-TR", { month: "long", year: "numeric" });
+      return ad.charAt(0).toUpperCase() + ad.slice(1);
+    }
+
+    // "2026-11-16" → "16 – 22 Kasım 2026"
+    function haftaAdi(anahtar) {
+      const [yil, ay, gun] = anahtar.split("-");
+      const bas = new Date(yil, ay - 1, gun);
+      const son = new Date(yil, ay - 1, Number(gun) + 6);
+      const sonYazi = son.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+      const basYazi = bas.getMonth() === son.getMonth()
+        ? bas.getDate()
+        : bas.toLocaleDateString("tr-TR", { day: "numeric", month: "long" });
+      return basYazi + " – " + sonYazi;
+    }
+
+    function donemAdi(anahtar, hangiMod) {
+      return hangiMod === "hafta" ? haftaAdi(anahtar) : ayAdi(anahtar);
+    }
+
+    const bugunYazi = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
+    function simdikiDonem(hangiMod) { return donemAnahtari(bugunYazi, hangiMod); }
+
+    // Bir işlem seçili döneme ait mi?
+    function donemde(islem, anahtar, hangiMod) {
+      return anahtar === "hepsi" || donemAnahtari(islem.tarih, hangiMod) === anahtar;
+    }
+
+    // Her şeyi tarayıcının hafızasına kaydeder (sayfa kapansa da kaybolmaz)
+    function kaydet() {
+      try {
+        localStorage.setItem("islemler", JSON.stringify(islemler));
+        localStorage.setItem("limitler", JSON.stringify(limitler));
+        localStorage.setItem("butce", JSON.stringify(butce));
+        localStorage.setItem("mod", JSON.stringify(mod));
+        localStorage.setItem("bursGunu", JSON.stringify(bursGunu));
+        localStorage.setItem("hedefler", JSON.stringify(hedefler));
+        localStorage.setItem("tekrarlar", JSON.stringify(tekrarlar));
+      } catch (e) { /* hafıza kapalıysa sessizce geç */ }
+    }
+
+    // Dönem kutusunu doldurur: işlemi olan bütün aylar/haftalar + şimdiki dönem
+    function donemleriDoldur(istenen) {
+      const simdi = simdikiDonem(mod);
+      const secili = istenen || donemSec.value || simdi;
+      const donemler = new Set([simdi]);
+      islemler.forEach(i => donemler.add(donemAnahtari(i.tarih, mod)));
+      const sirali = [...donemler].sort().reverse(); // en yeni en üstte
+
+      donemSec.innerHTML = `<option value="hepsi">${mod === "hafta" ? "Tüm haftalar" : "Tüm aylar"}</option>`;
+      sirali.forEach(function (d) {
+        const ek = d === simdi ? (mod === "hafta" ? " (bu hafta)" : " (bu ay)") : "";
+        donemSec.innerHTML += `<option value="${d}">${donemAdi(d, mod)}${ek}</option>`;
+      });
+      donemSec.value = sirali.includes(secili) || secili === "hepsi" ? secili : simdi;
+
+      // Aylık / Haftalık düğmelerinden doğru olanı vurgula
+      document.getElementById("btnAylik").className = mod === "ay" ? "secili" : "";
+      document.getElementById("btnHaftalik").className = mod === "hafta" ? "secili" : "";
+    }
+
+    // Aylık ↔ Haftalık geçişi
+    function modDegistir(yeniMod) {
+      if (mod === yeniMod) return;
+      mod = yeniMod;
+      butceDuzenleniyor = false; // aylık/haftalık değişince yarım kalan düzenlemeyi kapat
+      kaydet();
+      donemleriDoldur(simdikiDonem(mod)); // geçince şimdiki döneme git
+      ekraniGuncelle();
+    }
+    document.getElementById("btnAylik").addEventListener("click", () => modDegistir("ay"));
+    document.getElementById("btnHaftalik").addEventListener("click", () => modDegistir("hafta"));
+
+    // Bir dönemde her kategoriye ne kadar harcandığını (ya da ne kadar gelir geldiğini) hesaplar
+    // Sonuç örneği: { "Yemek": 1200, "Ulaşım": 300 }
+    function kategoriHarcamalari(anahtar, hangiMod, tur = "gider") {
+      const toplam = {};
+      islemler.forEach(function (i) {
+        if (i.tur !== tur || !donemde(i, anahtar, hangiMod)) return;
+        toplam[i.kategori] = (toplam[i.kategori] || 0) + i.tutar;
+      });
+      return toplam;
+    }
+
+    function toplamHarcama(anahtar, hangiMod) {
+      return Object.values(kategoriHarcamalari(anahtar, hangiMod)).reduce((t, x) => t + x, 0);
+    }
+
+    // ---------- BÜTÇE (soru ve durum) ----------
+    // "Değiştir"e basılınca true olur; kaydedince ya da vazgeçince false
+    let butceDuzenleniyor = false;
+
+    function butceyiGuncelle() {
+      const soru = document.getElementById("butceSoru");
+      const durum = document.getElementById("butceDurum");
+      const kelime = mod === "hafta" ? "hafta" : "ay";
+      const miktar = butce[mod];
+
+      // Bütçe girilmemişse ya da "Değiştir"e basıldıysa soruyu göster
+      if (!miktar || butceDuzenleniyor) {
+        soru.style.display = "block";
+        durum.style.display = "none";
+        document.getElementById("butceSoruYazi").textContent = butceDuzenleniyor
+          ? `✏️ Yeni ${kelime}lık bütçen ne kadar? (şu an: ${paraYaz(miktar)})`
+          : `💸 Her ${kelime} için bütçen ne kadar?`;
+        document.getElementById("butceVazgec").style.display = butceDuzenleniyor ? "inline-block" : "none";
+        if (!butceDuzenleniyor) return null;
+        // Düzenlerken eski bütçe hâlâ geçerli: aşıldıysa uyarı yine çıksın
+        const anahtar = simdikiDonem(mod); // Bütçe her zaman şimdiki ay/hafta için (Bugün sekmesi)
+        const kalan = miktar - toplamHarcama(anahtar, mod);
+        return kalan < 0 ? `${donemAdi(anahtar, mod)} bütçeni ${paraYaz(-kalan)} aştın` : null;
+      }
+
+      soru.style.display = "none";
+      durum.style.display = "block";
+
+      // "Tüm aylar/haftalar" seçiliyse şimdiki dönemi esas al
+      const anahtar = simdikiDonem(mod); // Bütçe her zaman şimdiki ay/hafta için (Bugün sekmesi)
+      const harcanan = toplamHarcama(anahtar, mod);
+      const kalan = miktar - harcanan;
+      const asildi = kalan < 0;
+
+      document.getElementById("butceBaslik").textContent = (mod === "hafta" ? "Haftalık" : "Aylık") + " Bütçe · " + donemAdi(anahtar, mod);
+      document.getElementById("bButce").textContent = paraYaz(miktar);
+      document.getElementById("bHarcanan").textContent = paraYaz(harcanan);
+      const kalanEl = document.getElementById("bKalan");
+      kalanEl.textContent = paraYaz(kalan);
+      kalanEl.className = asildi ? "kirmizi" : "yesil";
+
+      const cubuk = document.getElementById("butceCubuk");
+      cubuk.className = asildi ? "cubuk buyuk asildi" : "cubuk buyuk";
+      cubuk.querySelector("div").style.width = Math.min((harcanan / miktar) * 100, 100) + "%";
+
+      return asildi ? `${donemAdi(anahtar, mod)} bütçeni ${paraYaz(-kalan)} aştın` : null;
+    }
+
+    // Bütçe kaydet
+    document.getElementById("butceKaydet").addEventListener("click", function () {
+      const deger = parseFloat(document.getElementById("butceGir").value);
+      if (!(deger > 0)) {
+        alert("Lütfen 0'dan büyük bir bütçe yaz.");
+        return;
+      }
+      butce[mod] = deger;
+      butceDuzenleniyor = false;
+      kaydet();
+      document.getElementById("butceGir").value = "";
+      ekraniGuncelle();
+    });
+    // Enter'a basınca da kaydetsin
+    document.getElementById("butceGir").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") document.getElementById("butceKaydet").click();
+    });
+    // Değiştir: soruyu aç, eski değeri kutuya koy. Eski bütçe SİLİNMEZ;
+    // yeni değer kaydedilene kadar geçerli kalır.
+    document.getElementById("butceDegistir").addEventListener("click", function () {
+      butceDuzenleniyor = true;
+      document.getElementById("butceGir").value = butce[mod];
+      ekraniGuncelle();
+      document.getElementById("butceGir").focus();
+    });
+    // Vazgeç: hiçbir şeyi değiştirmeden eski bütçeye dön
+    document.getElementById("butceVazgec").addEventListener("click", function () {
+      butceDuzenleniyor = false;
+      document.getElementById("butceGir").value = "";
+      ekraniGuncelle();
+    });
+
+    // ---------- BURS GÜNÜ ----------
+    // Bir sonraki burs tarihini bulur. Ay 30 çekiyorsa ve gün 31 ise ayın son gününü alır.
+    function sonrakiBursTarihi(gun) {
+      const bugunTarih = new Date();
+      bugunTarih.setHours(0, 0, 0, 0);
+      function oAy(yil, ay) {
+        const ayinSonGunu = new Date(yil, ay + 1, 0).getDate();
+        return new Date(yil, ay, Math.min(gun, ayinSonGunu));
+      }
+      let tarih = oAy(bugunTarih.getFullYear(), bugunTarih.getMonth());
+      if (tarih < bugunTarih) tarih = oAy(bugunTarih.getFullYear(), bugunTarih.getMonth() + 1);
+      const kalanGun = Math.round((tarih - bugunTarih) / 86400000);
+      return { tarih, kalanGun };
+    }
+
+    function bursuGuncelle() {
+      const mesaj = document.getElementById("bursMesaj");
+      const alt = document.getElementById("bursAlt");
+      document.getElementById("bursGun").value = bursGunu || "";
+
+      if (!bursGunu) {
+        mesaj.textContent = "Bursunun yattığı günü yaz, kaç gün kaldığını hesaplayayım.";
+        alt.textContent = "";
+        return;
+      }
+
+      // Elindeki para = bugüne kadarki tüm gelirler − tüm giderler − birikime ayırdıkların
+      let elindeki = 0;
+      islemler.forEach(i => { elindeki += i.tur === "gelir" ? i.tutar : -i.tutar; });
+      const birikim = toplamBirikim();
+      elindeki -= birikim;
+
+      const { tarih, kalanGun } = sonrakiBursTarihi(bursGunu);
+      const tarihYazi = tarih.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+      alt.textContent = `Toplam elindeki para: ${paraYaz(elindeki)} ` +
+        (birikim > 0 ? `(tüm gelirler − tüm giderler − birikimler)` : `(tüm gelirler − tüm giderler)`) +
+        ` · Sonraki burs: ${tarihYazi}`;
+
+      if (kalanGun === 0) {
+        mesaj.innerHTML = "🎉 <strong>Burs bugün yatıyor!</strong>";
+      } else if (elindeki <= 0) {
+        mesaj.innerHTML = `Bursa <strong>${kalanGun} gün</strong> kaldı ama elinde harcayacak para kalmamış 😕`;
+      } else {
+        mesaj.innerHTML = `Bursa <strong>${kalanGun} gün</strong> kaldı, günlük <strong>${paraYaz(elindeki / kalanGun)}</strong> harcayabilirsin.`;
+      }
+    }
+
+    // Burs günü yazılınca kaydet
+    document.getElementById("bursGun").addEventListener("change", function () {
+      const gun = parseInt(this.value);
+      bursGunu = gun >= 1 && gun <= 31 ? gun : null;
+      kaydet();
+      bursuGuncelle();
+    });
+
+    // ---------- BİRİKİM HEDEFLERİ ----------
+    function toplamBirikim() {
+      return hedefler.reduce((t, h) => t + h.biriken, 0);
+    }
+
+    // Hedef listesini ekrana çizer
+    function hedefleriCiz() {
+      const alan = document.getElementById("hedefListesi");
+      alan.innerHTML = "";
+      if (hedefler.length === 0) {
+        alan.innerHTML = "<p class='bos-mesaj'>Henüz hedef yok. Örneğin: Yaz tatili – 5000 ₺</p>";
+        return;
+      }
+
+      hedefler.forEach(function (h, sira) {
+        const yuzde = Math.min((h.biriken / h.hedef) * 100, 100);
+        const tamam = h.biriken >= h.hedef;
+
+        const kutu = document.createElement("div");
+        kutu.className = "hedef";
+        kutu.innerHTML = `
+          <div class="limit-ust">
+            <strong class="hedef-adi"></strong>
+            <button class="sil" title="Hedefi sil">✕</button>
+          </div>
+          <div class="cubuk buyuk ${tamam ? "tamam" : ""}"><div style="width:${yuzde}%"></div></div>
+          <div class="limit-alt">
+            ${paraYaz(h.biriken)} / ${paraYaz(h.hedef)} (%${Math.floor(yuzde)})
+            ${tamam ? " — 🎉 Hedefe ulaştın!" : " — kalan " + paraYaz(h.hedef - h.biriken)}
+          </div>
+          <div class="satir-form">
+            <input type="number" min="0.01" step="0.01" placeholder="Tutar (₺)">
+            <button type="button" class="biriktir">+ Biriktir</button>
+            <button type="button" class="ikincil cek">− Çek</button>
+          </div>`;
+        // Adı textContent ile yazıyoruz ki özel karakterler sorun çıkarmasın
+        kutu.querySelector(".hedef-adi").textContent = h.ad;
+
+        const tutarKutusu = kutu.querySelector("input");
+        function tutarAl() {
+          const t = parseFloat(tutarKutusu.value);
+          if (!(t > 0)) { alert("Lütfen bir tutar yaz."); return null; }
+          return t;
+        }
+
+        kutu.querySelector(".biriktir").addEventListener("click", function () {
+          const t = tutarAl();
+          if (t === null) return;
+          h.biriken += t;
+          kaydet();
+          ekraniGuncelle();
+        });
+        kutu.querySelector(".cek").addEventListener("click", function () {
+          const t = tutarAl();
+          if (t === null) return;
+          if (t > h.biriken) { alert(`Bu hedefte sadece ${paraYaz(h.biriken)} var.`); return; }
+          h.biriken -= t;
+          kaydet();
+          ekraniGuncelle();
+        });
+        kutu.querySelector(".sil").addEventListener("click", function () {
+          if (!confirm(`"${h.ad}" hedefini silmek istediğine emin misin?`)) return;
+          hedefler.splice(sira, 1);
+          kaydet();
+          ekraniGuncelle();
+        });
+
+        alan.appendChild(kutu);
+      });
+    }
+
+    // Yeni hedef ekle
+    document.getElementById("hedefEkle").addEventListener("click", function () {
+      const ad = document.getElementById("hedefAd").value.trim();
+      const tutar = parseFloat(document.getElementById("hedefTutar").value);
+      if (!ad || !(tutar > 0)) {
+        alert("Hedefin adını ve tutarını yaz. Örneğin: Yaz tatili – 5000");
+        return;
+      }
+      hedefler.push({ ad: ad, hedef: tutar, biriken: 0 });
+      kaydet();
+      document.getElementById("hedefAd").value = "";
+      document.getElementById("hedefTutar").value = "";
+      ekraniGuncelle();
+    });
+
+    // ---------- AYLIK ÖZET RAPORU ----------
+    // "2026-11" → "2026-10"
+    function oncekiAy(anahtar) {
+      const [yil, ay] = anahtar.split("-").map(Number);
+      return isoYaz(new Date(yil, ay - 2, 1)).slice(0, 7);
+    }
+
+    function raporuGuncelle() {
+      const ay = limitAyi(); // seçili ay (haftalıkta: haftanın ayı)
+      const harcamalar = kategoriHarcamalari(ay, "ay");
+      const toplam = Object.values(harcamalar).reduce((t, x) => t + x, 0);
+      const onceki = oncekiAy(ay);
+      const oncekiToplam = toplamHarcama(onceki, "ay");
+      const buAyMi = ay === simdikiDonem("ay");
+
+      document.getElementById("raporBaslik").textContent = "📋 Aylık Özet · " + ayAdi(ay);
+
+      // 1) En çok harcanan kategori
+      const enCok = Object.entries(harcamalar).sort((a, b) => b[1] - a[1])[0];
+      if (enCok) {
+        document.getElementById("rEnCok").textContent = enCok[0];
+        document.getElementById("rEnCokAlt").textContent =
+          `${paraYaz(enCok[1])} · harcamanın %${Math.round((enCok[1] / toplam) * 100)}'i`;
+      } else {
+        document.getElementById("rEnCok").textContent = "–";
+        document.getElementById("rEnCokAlt").textContent = "Bu ay harcama yok";
+      }
+
+      // 2) Geçen aya göre artış / azalış
+      const degisimEl = document.getElementById("rDegisim");
+      const degisimAlt = document.getElementById("rDegisimAlt");
+      if (oncekiToplam === 0) {
+        degisimEl.textContent = "–";
+        degisimEl.className = "";
+        degisimAlt.textContent = `${ayAdi(onceki)} için kayıt yok`;
+      } else {
+        const yuzde = ((toplam - oncekiToplam) / oncekiToplam) * 100;
+        if (Math.round(yuzde) === 0) {
+          degisimEl.textContent = "Aynı";
+          degisimEl.className = "";
+        } else if (yuzde > 0) {
+          degisimEl.textContent = `▲ %${Math.round(yuzde)} artış`;
+          degisimEl.className = "kirmizi"; // daha çok harcamak = kötü
+        } else {
+          degisimEl.textContent = `▼ %${Math.round(-yuzde)} azalış`;
+          degisimEl.className = "yesil";   // daha az harcamak = iyi
+        }
+        degisimAlt.textContent = `${ayAdi(onceki)}: ${paraYaz(oncekiToplam)} → ${paraYaz(toplam)}` +
+          (buAyMi ? " (ay henüz bitmedi)" : "");
+      }
+
+      // 3) Günlük ortalama harcama
+      // Bu aysa bugüne kadar geçen gün sayısına, geçmiş aysa ayın tüm günlerine böl
+      const [yil, ayNo] = ay.split("-").map(Number);
+      const gunSayisi = buAyMi ? new Date().getDate() : new Date(yil, ayNo, 0).getDate();
+      document.getElementById("rGunluk").textContent = paraYaz(toplam / gunSayisi);
+      document.getElementById("rGunlukAlt").textContent = `${gunSayisi} gün üzerinden`;
+    }
+
+    // ---------- PASTA GRAFİK ----------
+    // Aynı fonksiyon iki grafiği de çizer: hangi tuvale, hangi renklerle çizeceğini söylüyoruz
+    function pastaCiz(harcamalar, tuvalId, lejantId, renkler, bosMesaj) {
+      const tuval = document.getElementById(tuvalId);
+      const kalem = tuval.getContext("2d");
+      const lejant = document.getElementById(lejantId);
+      const boyut = 220;
+
+      // Ekran keskinliği için (yüksek çözünürlüklü ekranlarda bulanık olmasın)
+      const oran = window.devicePixelRatio || 1;
+      tuval.width = boyut * oran;
+      tuval.height = boyut * oran;
+      tuval.style.width = boyut + "px";
+      tuval.style.height = boyut + "px";
+      kalem.setTransform(oran, 0, 0, oran, 0, 0);
+      kalem.clearRect(0, 0, boyut, boyut);
+
+      // Büyükten küçüğe sırala
+      const kalemler = Object.entries(harcamalar).sort((a, b) => b[1] - a[1]);
+      const genelToplam = kalemler.reduce((t, k) => t + k[1], 0);
+
+      lejant.innerHTML = "";
+      if (genelToplam === 0) {
+        tuval.style.display = "none";
+        lejant.innerHTML = `<li class='bos-mesaj'>${bosMesaj}</li>`;
+        return;
+      }
+      tuval.style.display = "block";
+
+      const merkez = boyut / 2;
+      const yaricap = boyut / 2 - 4;
+      let baslangic = -Math.PI / 2; // saat 12 yönünden başla
+
+      kalemler.forEach(function ([kategori, tutar], n) {
+        const renk = renkler[n % renkler.length];
+        const aci = (tutar / genelToplam) * Math.PI * 2;
+
+        // Dilimi çiz
+        kalem.beginPath();
+        kalem.moveTo(merkez, merkez);
+        kalem.arc(merkez, merkez, yaricap, baslangic, baslangic + aci);
+        kalem.closePath();
+        kalem.fillStyle = renk;
+        kalem.fill();
+        kalem.strokeStyle = "#fff";
+        kalem.lineWidth = 2;
+        kalem.stroke();
+        baslangic += aci;
+
+        // Yanındaki açıklama satırı
+        const yuzde = Math.round((tutar / genelToplam) * 100);
+        const satir = document.createElement("li");
+        satir.innerHTML = `<span class="renk-kare" style="background:${renk}"></span><span class="ad"></span>: <strong>${paraYaz(tutar)}</strong> <small>(%${yuzde})</small>`;
+        satir.querySelector(".ad").textContent = kategori; // kategori adı da düz yazı olarak
+        lejant.appendChild(satir);
+      });
+
+      // Ortayı boşaltıp "halka" görünümü ver ve toplamı yaz
+      kalem.beginPath();
+      kalem.arc(merkez, merkez, yaricap * 0.55, 0, Math.PI * 2);
+      kalem.fillStyle = "#fff";
+      kalem.fill();
+      kalem.fillStyle = "#2b1d3d";
+      kalem.textAlign = "center";
+      kalem.font = "12px Segoe UI, Arial";
+      kalem.fillText("Toplam", merkez, merkez - 6);
+      kalem.font = "bold 14px Segoe UI, Arial";
+      kalem.fillText(paraYaz(genelToplam), merkez, merkez + 12);
+    }
+
+    // ---------- KATEGORİ LİMİTLERİ ----------
+    // "+ Limit ekle": henüz limiti olmayan kategorileri seçtiren küçük form
+    document.getElementById("limitEkleDugme").addEventListener("click", function () {
+      const bos = giderKategorileri.filter(k => !limitler[k]);
+      if (bos.length === 0) { alert("Bütün kategorilere zaten limit konmuş."); return; }
+      document.getElementById("limitKategori").innerHTML = bos.map(k => `<option>${k}</option>`).join("");
+      document.getElementById("limitFormu").style.display = "flex";
+      document.getElementById("limitTutar").focus();
+    });
+    function limitFormunuKapat() {
+      document.getElementById("limitFormu").style.display = "none";
+      document.getElementById("limitTutar").value = "";
+    }
+    document.getElementById("limitVazgec").addEventListener("click", limitFormunuKapat);
+    document.getElementById("limitKaydet").addEventListener("click", function () {
+      const tutar = parseFloat(document.getElementById("limitTutar").value);
+      if (!(tutar > 0)) { alert("Lütfen 0'dan büyük bir limit yaz."); return; }
+      limitler[document.getElementById("limitKategori").value] = tutar;
+      kaydet();
+      limitFormunuKapat();
+      ekraniGuncelle();
+    });
+
+    // Hangi ayın limitlerine bakacağımızı bulur
+    function limitAyi() {
+      const secim = donemSec.value;
+      if (secim === "hepsi") return simdikiDonem("ay");
+      // Haftalık moddaysak, haftanın başladığı ay
+      return mod === "hafta" ? secim.slice(0, 7) : secim;
+    }
+
+    // Limit satırlarını çizer (sadece limit konmuş kategoriler); aşılanları döndürür.
+    // Limitler her zaman BU AY için kontrol edilir (Bugün sekmesindeki uyarılar da buna bakar).
+    function limitleriGuncelle() {
+      const ay = simdikiDonem("ay");
+      const harcamalar = kategoriHarcamalari(ay, "ay");
+      const alan = document.getElementById("limitler");
+      alan.innerHTML = "";
+
+      // Limit konmuş kategoriler, kategori listesindeki sırayla
+      const sirali = Object.keys(limitler).sort((a, b) => {
+        const ia = giderKategorileri.indexOf(a), ib = giderKategorileri.indexOf(b);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      });
+      document.getElementById("limitAciklama").textContent = sirali.length
+        ? ayAdi(ay) + " için harcanan / limit"
+        : "";
+      if (sirali.length === 0) {
+        alan.innerHTML = "<p class='bos-mesaj'>Henüz limit yok. “+ Limit ekle” ile bir kategoriye aylık sınır koyabilirsin.</p>";
+        return null;
+      }
+
+      const asilanlar = [];
+      sirali.forEach(function (kategori) {
+        const harcanan = harcamalar[kategori] || 0;
+        const limit = limitler[kategori];
+
+        const satir = document.createElement("div");
+        satir.className = "limit-satir";
+        satir.innerHTML = `
+          <div class="limit-ust">
+            <span class="ad"></span>
+            <span style="display:flex;align-items:center;gap:4px">
+              <input type="number" min="0" step="1" value="${limit}" title="Limiti değiştir">
+              <button type="button" class="sil" title="Limiti kaldır">✕</button>
+            </span>
+          </div>
+          <div class="cubuk"><div></div></div>
+          <div class="limit-alt"></div>`;
+        satir.querySelector(".ad").textContent = kategori;
+
+        // Limit değiştirilince kaydet (boş/0 yazılırsa limit kalkar)
+        satir.querySelector("input").addEventListener("change", function () {
+          const deger = parseFloat(this.value);
+          if (deger > 0) limitler[kategori] = deger;
+          else delete limitler[kategori];
+          kaydet();
+          ekraniGuncelle();
+        });
+        satir.querySelector(".sil").addEventListener("click", function () {
+          delete limitler[kategori];
+          kaydet();
+          ekraniGuncelle();
+        });
+        alan.appendChild(satir);
+
+        const cubuk = satir.querySelector(".cubuk");
+        const alt = satir.querySelector(".limit-alt");
+        const yuzde = (harcanan / limit) * 100;
+        cubuk.querySelector("div").style.width = Math.min(yuzde, 100) + "%";
+        const asildi = harcanan > limit;
+        cubuk.className = asildi ? "cubuk asildi" : "cubuk";
+        alt.className = asildi ? "limit-alt asildi" : "limit-alt";
+        alt.textContent = asildi
+          ? `${paraYaz(harcanan)} / ${paraYaz(limit)} — ${paraYaz(harcanan - limit)} aştın!`
+          : `${paraYaz(harcanan)} / ${paraYaz(limit)} (%${Math.round(yuzde)})`;
+
+        if (asildi) asilanlar.push(kategori);
+      });
+
+      return asilanlar.length > 0
+        ? `${ayAdi(ay)} limitini aştığın kategoriler: <strong>${asilanlar.join(", ")}</strong>`
+        : null;
+    }
+
+    // ---------- GELİR KAYNAKLARI LİSTESİ ----------
+    function gelirListesiniCiz(gelirler) {
+      const alan = document.getElementById("gelirListesi");
+      alan.innerHTML = "";
+      const kalemler = Object.entries(gelirler).sort((a, b) => b[1] - a[1]);
+      const toplam = kalemler.reduce((t, k) => t + k[1], 0);
+      if (toplam === 0) {
+        alan.innerHTML = "<p class='bos-mesaj'>Bu dönemde gelir yok.</p>";
+        return;
+      }
+      kalemler.forEach(function ([kaynak, tutar]) {
+        const yuzde = Math.round((tutar / toplam) * 100);
+        const satir = document.createElement("div");
+        satir.className = "gelir-satir";
+        satir.innerHTML = `
+          <div class="gelir-ust">
+            <span class="ad"></span>
+            <span><strong>${paraYaz(tutar)}</strong> <small>%${yuzde}</small></span>
+          </div>
+          <div class="cubuk"><div style="width:${yuzde}%"></div></div>`;
+        satir.querySelector(".ad").textContent = kaynak;
+        alan.appendChild(satir);
+      });
+      const alt = document.createElement("div");
+      alt.className = "gelir-toplam";
+      alt.innerHTML = `<span>Toplam</span><span class="yesil">${paraYaz(toplam)}</span>`;
+      alan.appendChild(alt);
+    }
+
+    // ---------- EKRANI ÇİZ ----------
+    function ekraniGuncelle() {
+      const secilen = donemSec.value;
+      liste.innerHTML = "";
+      let gelir = 0;
+      let gider = 0;
+      let gosterilen = 0;
+
+      // İşlemlerin sıra numaralarını tarihe göre diz: en yeni tarih en üstte.
+      // Aynı gündeki işlemlerde son eklenen üstte kalır.
+      // (Sıra numarasını saklıyoruz ki "Sil" doğru işlemi silsin.)
+      const siralar = islemler.map((islem, sira) => sira)
+        .filter(sira => donemde(islemler[sira], secilen, mod)) // bu döneme ait olanlar
+        .sort((a, b) => (tarihOku(islemler[b].tarih) - tarihOku(islemler[a].tarih)) || (a - b));
+
+      siralar.forEach(function (sira) {
+        const islem = islemler[sira];
+        gosterilen++;
+
+        if (islem.tur === "gelir") gelir += islem.tutar;
+        else gider += islem.tutar;
+
+        const satir = document.createElement("li");
+        satir.className = islem.tur;
+        // Önce boş bir iskelet kuruyoruz...
+        satir.innerHTML = `
+          <div>
+            <strong class="aciklama"></strong><br>
+            <small class="detay"></small>
+          </div>
+          <div>
+            <span class="${islem.tur === "gelir" ? "yesil" : "kirmizi"}">
+              ${islem.tur === "gelir" ? "+" : "-"}${paraYaz(islem.tutar)}
+            </span>
+            <button class="sil" title="Sil">✕</button>
+          </div>`;
+        // ...sonra kullanıcının yazdığı metni textContent ile koyuyoruz.
+        // Böylece açıklamaya HTML/kod yazılsa bile çalıştırılmaz, düz yazı olarak görünür (XSS koruması).
+        satir.querySelector(".aciklama").textContent = islem.aciklama;
+        satir.querySelector(".detay").textContent =
+          `${islem.kategori} · ${islem.tarih}` + (islem.tekrar ? " · 🔁 tekrarlayan" : "");
+        satir.querySelector(".sil").addEventListener("click", () => sil(sira));
+        liste.appendChild(satir);
+      });
+
+      if (gosterilen === 0) {
+        liste.innerHTML = "<p class='bos-mesaj'>Bu dönemde işlem yok. Yukarıdan ekleyebilirsin.</p>";
+      }
+
+      // Özet kartları: seçili dönemin gelir, gider ve bakiyesi
+      const kelime = mod === "hafta" ? "haftanın" : "ayın";
+      document.getElementById("bakiyeEtiket").textContent =
+        secilen === "hepsi" ? "Tüm zamanların bakiyesi"
+        : secilen === simdikiDonem(mod) ? `Bu ${kelime} bakiyesi`
+        : `Seçili ${kelime} bakiyesi`;
+      const bakiye = gelir - gider;
+      document.getElementById("toplamGelir").textContent = paraYaz(gelir);
+      document.getElementById("toplamGider").textContent = paraYaz(gider);
+      const bakiyeEl = document.getElementById("bakiye");
+      bakiyeEl.textContent = paraYaz(bakiye);
+      bakiyeEl.className = bakiye >= 0 ? "yesil" : "kirmizi";
+
+      bugunuGuncelle();
+      bursuGuncelle();
+      hedefleriCiz();
+      tekrarlariCiz();
+      takvimiCiz();
+      raporuGuncelle();
+      pastaCiz(kategoriHarcamalari(secilen, mod, "gider"), "pasta", "lejant", morTonlari, "Bu dönemde harcama yok.");
+      gelirListesiniCiz(kategoriHarcamalari(secilen, mod, "gelir"));
+
+      // Bütçe ve limit uyarılarını tek kutuda topla
+      const uyarilar = [butceyiGuncelle(), limitleriGuncelle()].filter(Boolean);
+      const uyari = document.getElementById("uyari");
+      if (uyarilar.length > 0) {
+        uyari.style.display = "block";
+        uyari.innerHTML = uyarilar.map(u => "⚠️ " + u).join("<br>");
+      } else {
+        uyari.style.display = "none";
+      }
+    }
+
+    // ---------- YENİ İŞLEM EKLE ----------
+    // Hem detaylı form hem Hızlı Ekle bu fonksiyonu kullanır.
+    // Açıklama boşsa yerine kategori adı yazılır.
+    function islemEkle(yeniIslem) {
+      if (!yeniIslem.aciklama.trim()) yeniIslem.aciklama = yeniIslem.kategori;
+
+      islemler.unshift(yeniIslem); // En yeniyi listenin başına ekle
+      kaydet();
+
+      // Eklenen işlemin dönemine geç (başka bir aya/haftaya eklendiyse oraya)
+      const donem = donemAnahtari(yeniIslem.tarih, mod);
+      donemleriDoldur(donemSec.value === "hepsi" ? "hepsi" : donem);
+      ekraniGuncelle();
+
+      // Bu harcama bir limiti ya da bütçeyi aştırdıysa hemen haber ver
+      if (yeniIslem.tur === "gider") {
+        const mesajlar = [];
+        const limit = limitler[yeniIslem.kategori];
+        if (limit) {
+          const harcanan = kategoriHarcamalari(ayAnahtari(yeniIslem.tarih), "ay")[yeniIslem.kategori] || 0;
+          if (harcanan > limit) {
+            mesajlar.push(`${yeniIslem.kategori} limitini aştın.\nLimit: ${paraYaz(limit)} · Harcanan: ${paraYaz(harcanan)}`);
+          }
+        }
+        if (butce[mod]) {
+          const harcanan = toplamHarcama(donem, mod);
+          if (harcanan > butce[mod]) {
+            mesajlar.push(`${mod === "hafta" ? "Haftalık" : "Aylık"} bütçeni aştın.\nBütçe: ${paraYaz(butce[mod])} · Harcanan: ${paraYaz(harcanan)}`);
+          }
+        }
+        if (mesajlar.length > 0) alert("⚠️ Dikkat!\n\n" + mesajlar.join("\n\n"));
+      }
+    }
+
+    // Detaylı form
+    form.addEventListener("submit", function (olay) {
+      olay.preventDefault(); // Sayfanın yenilenmesini engelle
+
+      // Tarih kutusundaki "2026-11-18" → "18.11.2026"
+      const [yil, ay, gun] = tarihKutusu.value.split("-");
+
+      islemEkle({
+        tur: document.getElementById("tur").value,
+        aciklama: document.getElementById("aciklama").value,
+        tutar: parseFloat(document.getElementById("tutar").value),
+        kategori: document.getElementById("kategori").value,
+        tarih: `${gun}.${ay}.${yil}`
+      });
+
+      form.reset();                 // Formu temizle
+      kategorileriDoldur();         // Tür "Gider"e döndü, kategorileri de ona göre ayarla
+      tarihKutusu.value = bugun();  // Tarihi tekrar bugüne getir
+    });
+
+    // ---------- HIZLI EKLE ----------
+    // Düğme → hangi kategoriye eklenecek
+    const hizliKategoriler = [
+      { emoji: "☕", ad: "Kafe",      kategori: "Kafe / Dışarıda Yemek" },
+      { emoji: "🍽️", ad: "Yemekhane", kategori: "Yemekhane" },
+      { emoji: "🚌", ad: "Ulaşım",    kategori: "Ulaşım / Akbil" },
+      { emoji: "📄", ad: "Fotokopi",  kategori: "Fotokopi / Kırtasiye" },
+      { emoji: "🛒", ad: "Market",    kategori: "Market" },
+      { emoji: "✨", ad: "Diğer",     kategori: "Diğer" }
+    ];
+    const hizliTutar = document.getElementById("hizliTutar");
+    const hizliNot = document.getElementById("hizliNot");
+
+    // Bugün toplam ne kadar harcandı: bugünün tarihli TÜM giderler
+    // (Hızlı Ekle, detaylı form ya da tekrarlayan — hepsi sayılır)
+    function bugunuGuncelle() {
+      let toplam = 0, adet = 0;
+      islemler.forEach(i => {
+        if (i.tur === "gider" && i.tarih === bugunYazi) { toplam += i.tutar; adet++; }
+      });
+      document.getElementById("bugunToplam").textContent = paraYaz(toplam);
+      document.getElementById("bugunAdet").textContent =
+        adet === 0 ? "Bugün henüz harcama yok" : `${adet} harcama`;
+    }
+
+    // ---------- "GERİ AL" BİLDİRİMİ ----------
+    // Ekranın altında birkaç saniye görünür. "Geri al"a basılırsa verilen fonksiyon çalışır.
+    let geriAlZamanlayici;
+    function geriAlGoster(mesaj, geriAlFonksiyonu) {
+      const kutu = document.getElementById("geriAl");
+      kutu.querySelector(".yazi").textContent = mesaj; // düz yazı (XSS koruması)
+      kutu.classList.add("goster");
+      kutu.querySelector("button").onclick = function () {
+        geriAlFonksiyonu();
+        kutu.classList.remove("goster");
+      };
+      clearTimeout(geriAlZamanlayici);
+      geriAlZamanlayici = setTimeout(() => kutu.classList.remove("goster"), 6000);
+    }
+
+    // Düğmeleri oluştur
+    hizliKategoriler.forEach(function (k) {
+      const dugme = document.createElement("button");
+      dugme.type = "button";
+      dugme.className = "hizli-dugme";
+      dugme.innerHTML = `<span class="emoji">${k.emoji}</span><span>${k.ad}</span>`;
+      dugme.addEventListener("click", function () {
+        const tutar = parseFloat(hizliTutar.value);
+        if (!(tutar > 0)) {
+          hizliTutar.focus();
+          hizliTutar.classList.add("hata");
+          setTimeout(() => hizliTutar.classList.remove("hata"), 800);
+          return;
+        }
+        const yeni = {
+          tur: "gider",
+          aciklama: hizliNot.value,   // boşsa islemEkle kategori adını yazar
+          tutar: tutar,
+          kategori: k.kategori,
+          tarih: bugunYazi,            // bugünün tarihi
+          hizli: true                  // Hızlı Ekle'den geldiğini belirtir
+        };
+        islemEkle(yeni);
+        hizliTutar.value = "";
+        hizliNot.value = "";
+        geriAlGoster(`✓ ${yeni.aciklama} · ${paraYaz(yeni.tutar)} eklendi`, function () {
+          const sira = islemler.indexOf(yeni);
+          if (sira >= 0) islemiKaldir(sira);
+        });
+      });
+      document.getElementById("hizliDugmeler").appendChild(dugme);
+    });
+
+    // ---------- TEKRARLAYAN GELİR / GİDERLER ----------
+    // "2026-11" → "2026-12"
+    function sonrakiAy(anahtar) {
+      const [yil, ay] = anahtar.split("-").map(Number);
+      return isoYaz(new Date(yil, ay, 1)).slice(0, 7);
+    }
+
+    // Bir kuralın belirli bir aydaki tarihi. Ay 30 çekiyorsa 31 → 30 olur.
+    function tekrarTarihi(gun, ayAnahtar) {
+      const [yil, ay] = ayAnahtar.split("-").map(Number);
+      const sonGun = new Date(yil, ay, 0).getDate();
+      return new Date(yil, ay - 1, Math.min(gun, sonGun));
+    }
+
+    // Zamanı gelmiş (tarihi bugün ya da geçmiş) tekrarları işlem olarak ekler.
+    // Sayfa her açıldığında çalışır; birkaç ay açılmadıysa kaçırılan ayları da ekler.
+    function tekrarlariIsle() {
+      const bugunTarih = new Date();
+      bugunTarih.setHours(0, 0, 0, 0);
+      const buAy = simdikiDonem("ay");
+      let eklenen = 0;
+
+      tekrarlar.forEach(function (t) {
+        let ay = t.sonEklenen ? sonrakiAy(t.sonEklenen) : t.baslangic;
+        while (ay <= buAy) {
+          const tarih = tekrarTarihi(t.gun, ay);
+          if (tarih > bugunTarih) break; // bu ayın günü henüz gelmedi
+          islemler.unshift({
+            tur: t.tur,
+            aciklama: t.aciklama,
+            tutar: t.tutar,
+            kategori: t.kategori,
+            tarih: tarih.toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" }),
+            tekrar: t.id
+          });
+          t.sonEklenen = ay;
+          eklenen++;
+          ay = sonrakiAy(ay);
+        }
+      });
+
+      if (eklenen > 0) kaydet();
+      return eklenen;
+    }
+
+    function tekrarlariCiz() {
+      const alan = document.getElementById("tekrarListesi");
+      alan.innerHTML = "";
+      if (tekrarlar.length === 0) {
+        alan.innerHTML = "<p class='bos-mesaj'>Henüz tekrarlayan işlem yok. Örneğin: Kira, her ayın 1'i.</p>";
+        return;
+      }
+      tekrarlar.forEach(function (t, sira) {
+        const satir = document.createElement("div");
+        satir.className = "tekrar";
+        const sonraki = tekrarTarihi(t.gun, t.sonEklenen ? sonrakiAy(t.sonEklenen) : t.baslangic);
+        satir.innerHTML = `
+          <div>
+            <strong class="ad"></strong>
+            <small>Her ayın ${t.gun}. günü · sıradaki: ${sonraki.toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}</small>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;white-space:nowrap">
+            <span class="${t.tur === "gelir" ? "yesil" : "kirmizi"}">${t.tur === "gelir" ? "+" : "-"}${paraYaz(t.tutar)}</span>
+            <button class="sil" title="Tekrarı durdur">✕</button>
+          </div>`;
+        satir.querySelector(".ad").textContent = t.aciklama;
+        satir.querySelector(".sil").addEventListener("click", function () {
+          if (!confirm(`"${t.aciklama}" tekrarını durdurmak istiyor musun?\n(Daha önce eklenmiş olanlar silinmez.)`)) return;
+          tekrarlar.splice(sira, 1);
+          kaydet();
+          ekraniGuncelle();
+        });
+        alan.appendChild(satir);
+      });
+    }
+
+    document.getElementById("tEkle").addEventListener("click", function () {
+      const tutar = parseFloat(document.getElementById("tTutar").value);
+      const gun = parseInt(document.getElementById("tGun").value);
+      if (!(tutar > 0) || !(gun >= 1 && gun <= 31)) {
+        alert("Tutarı ve ayın kaçıncı günü olduğunu (1–31) yaz.");
+        return;
+      }
+      const kategori = document.getElementById("tKategori").value;
+      const buAy = simdikiDonem("ay");
+      tekrarlar.push({
+        id: "t" + Date.now(),
+        tur: document.getElementById("tTur").value,
+        aciklama: document.getElementById("tAciklama").value.trim() || kategori,
+        tutar: tutar,
+        kategori: kategori,
+        gun: gun,
+        baslangic: document.getElementById("tBuAy").checked ? buAy : sonrakiAy(buAy),
+        sonEklenen: null
+      });
+      const eklenen = tekrarlariIsle(); // günü geçmişse bu ayınki hemen eklenir
+      kaydet();
+      document.getElementById("tAciklama").value = "";
+      document.getElementById("tTutar").value = "";
+      document.getElementById("tGun").value = "";
+      donemleriDoldur();
+      ekraniGuncelle();
+      if (eklenen > 0) alert("Bu ayın günü geçtiği için bu ayki işlem de hemen eklendi.");
+    });
+
+    // ---------- HARCAMA TAKVİMİ (ISI HARİTASI) ----------
+    let secilenGun = null; // "18.11.2026" gibi; dokunulan gün
+    const isiRenkleri = ["#f7efe9", "#f6d9d1", "#eab3a8", "#d48a80", "#a9665f"]; // 0 = harcama yok
+
+    function takvimiCiz() {
+      const ay = limitAyi(); // seçili ay (haftalıkta: haftanın ayı)
+      const [yil, ayNo] = ay.split("-").map(Number);
+      const gunSayisi = new Date(yil, ayNo, 0).getDate();
+      document.getElementById("takvimBaslik").textContent = "📅 Harcama Takvimi · " + ayAdi(ay);
+
+      // Her günün toplam harcaması
+      const gunluk = {};
+      islemler.forEach(i => {
+        if (i.tur === "gider" && ayAnahtari(i.tarih) === ay) gunluk[i.tarih] = (gunluk[i.tarih] || 0) + i.tutar;
+      });
+      const enYuksek = Math.max(0, ...Object.values(gunluk));
+
+      const takvim = document.getElementById("takvim");
+      takvim.innerHTML = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+        .map(g => `<div class="gun-adi">${g}</div>`).join("");
+
+      // Ayın ilk günü haftanın hangi gününe düşüyor? (Pazartesi = 0)
+      const bosluk = (new Date(yil, ayNo - 1, 1).getDay() + 6) % 7;
+      for (let i = 0; i < bosluk; i++) takvim.appendChild(document.createElement("div"));
+
+      if (secilenGun && ayAnahtari(secilenGun) !== ay) secilenGun = null;
+
+      for (let g = 1; g <= gunSayisi; g++) {
+        const tarih = `${String(g).padStart(2, "0")}.${String(ayNo).padStart(2, "0")}.${yil}`;
+        const tutar = gunluk[tarih] || 0;
+        // Harcamaya göre renk seviyesi: 0 (yok) … 4 (ayın en yüksek günü).
+        // Karekök kullanıyoruz ki tek bir büyük gün (ör. kira) yüzünden
+        // diğer günler hep aynı açık renkte kalmasın.
+        const seviye = tutar === 0 ? 0 : Math.max(1, Math.ceil(Math.sqrt(tutar / enYuksek) * 4));
+
+        const hucre = document.createElement("button");
+        hucre.type = "button";
+        hucre.className = "gun" + (tarih === bugunYazi ? " bugun-hucre" : "") + (tarih === secilenGun ? " secili" : "");
+        hucre.style.setProperty("--hucre", isiRenkleri[seviye]);
+        hucre.style.setProperty("--hucre-yazi", seviye >= 3 ? "#fff" : "var(--yazi)");
+        hucre.title = `${tarih}: ${paraYaz(tutar)}`;
+        hucre.innerHTML = `<span>${g}</span>` + (tutar > 0 ? `<small>${Math.round(tutar).toLocaleString("tr-TR")}</small>` : "");
+        hucre.addEventListener("click", function () {
+          secilenGun = secilenGun === tarih ? null : tarih; // aynı güne tekrar dokununca kapanır
+          takvimiCiz();
+        });
+        takvim.appendChild(hucre);
+      }
+
+      gunDetayiniCiz();
+    }
+
+    // Seçilen günün harcamalarını takvimin altında listeler
+    function gunDetayiniCiz() {
+      const alan = document.getElementById("gunDetay");
+      alan.innerHTML = "";
+      if (!secilenGun) return;
+
+      const giderler = islemler.filter(i => i.tur === "gider" && i.tarih === secilenGun);
+      const toplam = giderler.reduce((t, i) => t + i.tutar, 0);
+      const gunAdi = tarihOku(secilenGun).toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+
+      const baslik = document.createElement("div");
+      baslik.className = "baslik-satir";
+      baslik.innerHTML = `<span>${gunAdi}</span><span class="kirmizi">${paraYaz(toplam)}</span>`;
+      alan.appendChild(baslik);
+
+      if (giderler.length === 0) {
+        alan.innerHTML += "<p class='bos-mesaj' style='margin:4px 0'>Bu gün harcama yok 🌿</p>";
+        return;
+      }
+      giderler.forEach(function (i) {
+        const kalem = document.createElement("div");
+        kalem.className = "kalem";
+        kalem.innerHTML = `<div><span class="ad"></span><br><small class="kat"></small></div><span class="kirmizi">-${paraYaz(i.tutar)}</span>`;
+        kalem.querySelector(".ad").textContent = i.aciklama;
+        kalem.querySelector(".kat").textContent = i.kategori;
+        alan.appendChild(kalem);
+      });
+    }
+
+    // ---------- YEDEKLEME ----------
+    // Tüm verileri tek bir .json dosyası olarak indirir
+    document.getElementById("yedekIndir").addEventListener("click", function () {
+      const yedek = {
+        uygulama: "butce-takip",
+        surum: 1,
+        olusturma: new Date().toISOString(),
+        veriler: { islemler, limitler, butce, mod, bursGunu, hedefler, tekrarlar }
+      };
+      const dosya = new Blob([JSON.stringify(yedek, null, 2)], { type: "application/json" });
+      const baglanti = document.createElement("a");
+      baglanti.href = URL.createObjectURL(dosya);
+      baglanti.download = `butce-yedek-${bugun()}.json`;
+      document.body.appendChild(baglanti);
+      baglanti.click();
+      baglanti.remove();
+      setTimeout(() => URL.revokeObjectURL(baglanti.href), 1000);
+    });
+
+    // "Geri yükle" düğmesi gizli dosya seçiciyi açar
+    document.getElementById("yedekYukleDugme").addEventListener("click", function () {
+      document.getElementById("yedekDosya").click();
+    });
+
+    document.getElementById("yedekDosya").addEventListener("change", function () {
+      const dosya = this.files[0];
+      this.value = ""; // aynı dosya tekrar seçilebilsin
+      if (!dosya) return;
+
+      const okuyucu = new FileReader();
+      okuyucu.onload = function () {
+        let v;
+        try {
+          const icerik = JSON.parse(okuyucu.result);
+          v = icerik.veriler || icerik;
+        } catch (e) {
+          alert("Bu dosya okunamadı. Bütçe uygulamasından indirilen .json yedek dosyasını seç.");
+          return;
+        }
+
+        // Dosya gerçekten bizim yedeğimiz mi? İşlemleri kontrol et
+        const gecerliIslem = i => i && (i.tur === "gelir" || i.tur === "gider") &&
+          typeof i.tutar === "number" && /^\d{2}\.\d{2}\.\d{4}$/.test(i.tarih);
+        if (!Array.isArray(v.islemler) || !v.islemler.every(gecerliIslem)) {
+          alert("Bu dosya geçerli bir bütçe yedeği değil.");
+          return;
+        }
+
+        if (!confirm(`Yedekte ${v.islemler.length} işlem var.\n\n` +
+                     "Geri yüklersen ŞU ANKİ tüm verilerin bu yedekle DEĞİŞTİRİLECEK. Devam edilsin mi?")) return;
+
+        islemler = v.islemler;
+        limitler = v.limitler || {};
+        butce = v.butce || {};
+        mod = v.mod === "hafta" ? "hafta" : "ay";
+        bursGunu = v.bursGunu || null;
+        hedefler = Array.isArray(v.hedefler) ? v.hedefler : [];
+        tekrarlar = Array.isArray(v.tekrarlar) ? v.tekrarlar : [];
+        butceDuzenleniyor = false;
+        secilenGun = null;
+
+        tekrarlariIsle();
+        kaydet();
+        donemleriDoldur(simdikiDonem(mod));
+        ekraniGuncelle();
+        alert("✓ Yedek geri yüklendi.");
+      };
+      okuyucu.readAsText(dosya);
+    });
+
+    // Dönem değişince ekranı yeniden çiz
+    donemSec.addEventListener("change", ekraniGuncelle);
+
+    // Bir işlemi sessizce kaldırır
+    function islemiKaldir(sira) {
+      islemler.splice(sira, 1);
+      kaydet();
+      donemleriDoldur();
+      ekraniGuncelle();
+    }
+
+    // Listeden silme: siler ve "Geri al" bildirimi gösterir
+    function sil(sira) {
+      const silinen = islemler[sira];
+      islemiKaldir(sira);
+      geriAlGoster(`🗑️ "${silinen.aciklama}" silindi`, function () {
+        islemler.splice(Math.min(sira, islemler.length), 0, silinen); // eski yerine geri koy
+        kaydet();
+        donemleriDoldur();
+        ekraniGuncelle();
+      });
+    }
+
+    // ---------- SEKMELER ----------
+    const sekmeBasliklari = { islemler: "İşlemler", analiz: "Analiz", ayarlar: "Ayarlar" };
+    function sekmeAc(ad) {
+      document.querySelectorAll(".sekme").forEach(s => s.classList.toggle("aktif", s.id === "sekme-" + ad));
+      document.querySelectorAll(".alt-menu button").forEach(b => b.classList.toggle("aktif", b.dataset.sekme === ad));
+      // Dönem seçimi sadece İşlemler ve Analiz'de anlamlı
+      document.getElementById("donemPanel").style.display = (ad === "islemler" || ad === "analiz") ? "" : "none";
+      const baslik = document.getElementById("sekmeBaslik");
+      baslik.textContent = sekmeBasliklari[ad] || "";
+      baslik.style.display = ad === "bugun" ? "none" : "";
+      window.scrollTo(0, 0);
+    }
+    document.querySelectorAll(".alt-menu button").forEach(function (b) {
+      b.addEventListener("click", () => sekmeAc(b.dataset.sekme));
+    });
+
+    // Sayfa ilk açıldığında her şeyi hazırla
+    tarihKutusu.value = bugun();
+    kategorileriDoldur();
+    kategorileriDoldur("tTur", "tKategori");
+    tekrarlariIsle();   // zamanı gelmiş tekrarlayan işlemleri ekle
+    donemleriDoldur();
+    ekraniGuncelle();
+    sekmeAc("bugun"); // uygulama her zaman Bugün sekmesinde açılır
+  </script>
+</body>
+</html>
