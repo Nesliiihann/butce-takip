@@ -15,10 +15,10 @@ const DOSYALAR = [
   "./index.html",
   "./butce.html",
   "./manifest.json",
-  "./ikonlar/ikon-192.png",
-  "./ikonlar/ikon-512.png",
-  "./ikonlar/ikon-maskable-512.png",
-  "./ikonlar/apple-touch-icon.png"
+  "./ikon-192.png",
+  "./ikon-512.png",
+  "./ikon-maskable-512.png",
+  "./apple-touch-icon.png"
 ];
 
 // 1) YÜKLEME: dosyaları önbelleğe al
