@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Neslihan'ın Bütçesi</title>
+  <title>Bütçem</title>
   <!-- Başlık yazı tipleri (internet yoksa yerine benzer yazı tipleri kullanılır) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Playfair+Display:wght@700&display=swap">
@@ -240,6 +240,41 @@
     .alt-menu button.aktif .ikon { filter: none; opacity: 1; }
 
     /* "Geri al" bildirimi: alt menünün üstünde, her zaman TEK SATIR */
+    /* İlk açılışta ad soran pencere */
+    .ad-perde {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(74, 58, 53, 0.45);
+    }
+    .ad-perde.goster { display: flex; }
+    .ad-kart {
+      width: 100%;
+      max-width: 360px;
+      box-sizing: border-box;
+      background: var(--kart);
+      border: 1.5px dashed #e3b9b1;
+      border-radius: 18px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(60, 30, 20, 0.2);
+    }
+    .ad-kart h2 { font-family: "Playfair Display", Georgia, serif; color: var(--adacayi); margin: 6px 0; }
+    .ad-kart p { color: var(--soluk); margin: 0 0 14px; }
+    .ad-kart input { width: 100%; box-sizing: border-box; font-size: 18px; text-align: center; padding: 12px; }
+    .ad-kart .ad-onizleme {
+      font-family: "Dancing Script", "Segoe Script", cursive;
+      color: var(--mor);
+      font-size: 24px;
+      min-height: 32px;
+      margin: 10px 0;
+    }
+    .ad-kart button { width: 100%; padding: 12px; font-size: 16px; }
+
     .geri-al {
       position: fixed;
       left: 50%;
@@ -471,7 +506,8 @@
           <ellipse cx="14" cy="0" rx="14" ry="9" transform="rotate(12 14 0)" fill="#efbcb4"/>
           <circle r="5" fill="#d98f86"/>
         </svg>
-        <div class="baslik-isim">Neslihan'ın</div>
+        <!-- Kullanıcının adı JavaScript ile yazılır, ör. "Neslihan'ın" -->
+        <div class="baslik-isim" id="baslikIsim"></div>
         <h1>BÜTÇESİ</h1>
         <div class="baslik-alt">Planla • Tasarruf Et • Hedeflerine Ulaş ♡</div>
       </header>
@@ -611,6 +647,16 @@
 
     <!-- =============== SEKME 4: AYARLAR =============== -->
     <section class="sekme" id="sekme-ayarlar">
+      <!-- Profil: kullanıcının adı -->
+      <div class="panel">
+        <h3>👤 Adın</h3>
+        <p class="limit-alt" style="margin:-5px 0 10px">Başlıkta “<span id="adOnizleme"></span> Bütçesi” olarak görünür.</p>
+        <div class="satir-form">
+          <input id="adAyar" type="text" maxlength="30" placeholder="Adın" autocomplete="given-name">
+          <button type="button" id="adKaydet">Kaydet</button>
+        </div>
+      </div>
+
       <!-- Kategori limitleri: sadece limit konmuş kategoriler görünür -->
       <div class="panel">
         <div class="butce-ust">
@@ -676,6 +722,18 @@
     </section>
   </div>
 
+  <!-- İlk açılışta adı soran pencere -->
+  <div class="ad-perde" id="adPerde" role="dialog" aria-modal="true" aria-labelledby="adSoru">
+    <div class="ad-kart">
+      <div style="font-size:40px">🎀</div>
+      <h2 id="adSoru">Hoş geldin!</h2>
+      <p>Adın ne? Başlıkta senin adınla yazsın.</p>
+      <input id="adIlk" type="text" maxlength="30" placeholder="Adın" autocomplete="given-name">
+      <p class="ad-onizleme" id="adIlkOnizleme"></p>
+      <button type="button" id="adIlkKaydet">Başla</button>
+    </div>
+  </div>
+
   <!-- "Geri al" bildirimi: alt menünün hemen üstünde çıkar -->
   <div class="geri-al" id="geriAl" role="status">
     <span class="yazi"></span>
@@ -716,6 +774,8 @@
     // [{ id: "t1", tur: "gider", aciklama: "Kira", tutar: 3000, kategori: "Yurt / Ev Kirası",
     //    gun: 1, baslangic: "2026-11", sonEklenen: "2026-11" }]
     let tekrarlar = hafizadanOku("tekrarlar", []);
+    // Kullanıcının adı (ilk açılışta sorulur)
+    let kullaniciAdi = hafizadanOku("ad", "");
 
     // Limit konabilecek (harcama) kategorileri
     // (üniversite öğrencisine göre)
@@ -826,6 +886,7 @@
         localStorage.setItem("bursGunu", JSON.stringify(bursGunu));
         localStorage.setItem("hedefler", JSON.stringify(hedefler));
         localStorage.setItem("tekrarlar", JSON.stringify(tekrarlar));
+        localStorage.setItem("ad", JSON.stringify(kullaniciAdi));
       } catch (e) { /* hafıza kapalıysa sessizce geç */ }
     }
 
@@ -1528,6 +1589,8 @@
       const kutu = document.getElementById("geriAl");
       kutu.querySelector(".yazi").textContent = mesaj; // düz yazı (XSS koruması)
       kutu.classList.add("goster");
+      // Geri alınacak bir şey yoksa düğmeyi gizle (sadece bilgi mesajı)
+      kutu.querySelector("button").style.display = geriAlFonksiyonu ? "" : "none";
       kutu.querySelector("button").onclick = function () {
         geriAlFonksiyonu();
         kutu.classList.remove("goster");
@@ -1762,7 +1825,7 @@
         uygulama: "butce-takip",
         surum: 1,
         olusturma: new Date().toISOString(),
-        veriler: { islemler, limitler, butce, mod, bursGunu, hedefler, tekrarlar }
+        veriler: { ad: kullaniciAdi, islemler, limitler, butce, mod, bursGunu, hedefler, tekrarlar }
       };
       const dosya = new Blob([JSON.stringify(yedek, null, 2)], { type: "application/json" });
       const baglanti = document.createElement("a");
@@ -1811,6 +1874,7 @@
         butce = v.butce || {};
         mod = v.mod === "hafta" ? "hafta" : "ay";
         bursGunu = v.bursGunu || null;
+        if (typeof v.ad === "string" && v.ad.trim()) { kullaniciAdi = v.ad.trim().slice(0, 30); adiUygula(); }
         hedefler = Array.isArray(v.hedefler) ? v.hedefler : [];
         tekrarlar = Array.isArray(v.tekrarlar) ? v.tekrarlar : [];
         butceDuzenleniyor = false;
@@ -1848,6 +1912,61 @@
       });
     }
 
+    // ---------- KULLANICININ ADI ----------
+    // Türkçe iyelik eki: son sesli harfe ve adın sesli/sessiz harfle bitmesine göre.
+    // Neslihan → Neslihan'ın, Ayşe → Ayşe'nin, Okan → Okan'ın, Ümit → Ümit'in, Ufuk → Ufuk'un
+    function iyelik(ad) {
+      const kucuk = ad.toLocaleLowerCase("tr-TR");
+      const sesliler = "aeıioöuü";
+      let sonSesli = "e";
+      for (const harf of kucuk) if (sesliler.includes(harf)) sonSesli = harf;
+      const ek = { a: "ın", ı: "ın", e: "in", i: "in", o: "un", u: "un", ö: "ün", ü: "ün" }[sonSesli];
+      const sesliyleBitiyor = sesliler.includes(kucuk.slice(-1));
+      return ad + "'" + (sesliyleBitiyor ? "n" : "") + ek;
+    }
+
+    // Adı başlığa, sekme başlığına ve Ayarlar'daki kutuya yazar
+    function adiUygula() {
+      const iyelikli = kullaniciAdi ? iyelik(kullaniciAdi) : "";
+      document.getElementById("baslikIsim").textContent = iyelikli; // düz yazı (XSS koruması)
+      document.getElementById("adOnizleme").textContent = iyelikli || "…";
+      document.getElementById("adAyar").value = kullaniciAdi;
+      document.title = kullaniciAdi ? `${iyelikli} Bütçesi` : "Bütçem";
+    }
+
+    function adPenceresiniAc() {
+      document.getElementById("adPerde").classList.add("goster");
+      setTimeout(() => document.getElementById("adIlk").focus(), 50);
+    }
+
+    // İlk açılış penceresi: yazarken önizleme göster
+    document.getElementById("adIlk").addEventListener("input", function () {
+      const ad = this.value.trim();
+      document.getElementById("adIlkOnizleme").textContent = ad ? `${iyelik(ad)} Bütçesi` : "";
+    });
+    function ilkAdiKaydet() {
+      const ad = document.getElementById("adIlk").value.trim();
+      if (!ad) { document.getElementById("adIlk").focus(); return; }
+      kullaniciAdi = ad;
+      kaydet();
+      adiUygula();
+      document.getElementById("adPerde").classList.remove("goster");
+    }
+    document.getElementById("adIlkKaydet").addEventListener("click", ilkAdiKaydet);
+    document.getElementById("adIlk").addEventListener("keydown", e => { if (e.key === "Enter") ilkAdiKaydet(); });
+
+    // Ayarlar'dan adı değiştirme
+    function ayarAdiKaydet() {
+      const ad = document.getElementById("adAyar").value.trim();
+      if (!ad) { alert("Lütfen bir ad yaz."); return; }
+      kullaniciAdi = ad;
+      kaydet();
+      adiUygula();
+      geriAlGoster(`✓ Başlık: ${iyelik(ad)} Bütçesi`, null); // null = "Geri al" düğmesi yok
+    }
+    document.getElementById("adKaydet").addEventListener("click", ayarAdiKaydet);
+    document.getElementById("adAyar").addEventListener("keydown", e => { if (e.key === "Enter") ayarAdiKaydet(); });
+
     // ---------- SEKMELER ----------
     const sekmeBasliklari = { islemler: "İşlemler", analiz: "Analiz", ayarlar: "Ayarlar" };
     function sekmeAc(ad) {
@@ -1872,6 +1991,8 @@
     donemleriDoldur();
     ekraniGuncelle();
     sekmeAc("bugun"); // uygulama her zaman Bugün sekmesinde açılır
+    adiUygula();
+    if (!kullaniciAdi) adPenceresiniAc(); // ad yoksa (ilk açılış) sor
   </script>
 </body>
 </html>
