@@ -1,0 +1,162 @@
+rules_version = '2';
+
+// ============ CebimeGetir · Firestore güvenlik kuralları ============
+// Bu dosyayı Firebase Console → Firestore Database → Rules sekmesine yapıştırıp "Publish" de
+// (ya da Firebase CLI ile: firebase deploy --only firestore:rules).
+//
+// Buluta SADECE "Ortak" sekmesindeki ortak cüzdanlar gider. Kişisel bütçe verileri
+// (harcamalar, bütçe, hedefler…) telefonda kalır; burada hiçbir kuralı yok.
+//
+// Veri modeli:
+//   cuzdanlar/{cuzdanId}                 ad, uyeler[uid], uyeAdlari{uid: ad}, davetKodu, olusturan,
+//                                        olusturma, katilimKodu (katılırken yazılan kod)
+//   cuzdanlar/{cuzdanId}/harcamalar/{id} tur: "harcama" | "odeme" (borç ödendi kaydı)
+//   davetler/{kod}                       cuzdanId  ← davet kodundan cüzdanı bulmak için.
+//                                        Sadece TEK TEK okunabilir (kodu bilen); listelenemez.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function girisli() { return request.auth != null; }
+    function ben() { return request.auth.uid; }
+    // Davet kodu: 8 karakter, büyük harf + rakam; karıştırılan 0, O, 1, I, L yok. Tiresiz saklanır.
+    function kodGecerli(k) { return k is string && k.matches('^[A-HJ-KM-NP-Z2-9]{8}$'); }
+
+    // ---------------- CÜZDANLAR ----------------
+    match /cuzdanlar/{cuzdanId} {
+
+      // Okuma: sadece üyeler. Listeleme sorgusu da yalnızca
+      // where("uyeler", "array-contains", benimUid) şeklinde yapılabilir.
+      allow get, list: if girisli() && ben() in resource.data.uyeler;
+
+      // Oluşturma: tek üye kendisi olmalı; davet kodu 8 karakter;
+      // aynı anda davetler/{kod} kaydı da bu cüzdanı göstermeli (kod başka cüzdanda kullanılamaz).
+      allow create: if girisli()
+        && request.resource.data.keys().hasOnly(['ad', 'uyeler', 'uyeAdlari', 'davetKodu', 'olusturan', 'olusturma'])
+        && request.resource.data.olusturan == ben()
+        && request.resource.data.uyeler == [ben()]
+        && request.resource.data.uyeAdlari.keys().hasOnly([ben()])
+        && request.resource.data.uyeAdlari[ben()] is string
+        && request.resource.data.uyeAdlari[ben()].size() <= 40
+        && request.resource.data.ad is string
+        && request.resource.data.ad.size() > 0 && request.resource.data.ad.size() <= 40
+        && kodGecerli(request.resource.data.davetKodu)
+        && getAfter(/databases/$(database)/documents/davetler/$(request.resource.data.davetKodu)).data.cuzdanId == cuzdanId;
+
+      // Güncelleme: sadece "kendini ekle" (doğru davet koduyla) ya da "kendini çıkar".
+      // Başka birini eklemek/çıkarmak, adı/kodu değiştirmek mümkün değil.
+      allow update: if girisli() && (katilma() || ayrilma());
+
+      // Silme: sadece TEK üye sensen (hesabını silerken) ve aynı toplu yazmada davet kodu da siliniyorsa.
+      // Başka üyesi olan cüzdan silinemez.
+      allow delete: if girisli()
+        && resource.data.uyeler == [ben()]
+        && !existsAfter(/databases/$(database)/documents/davetler/$(resource.data.davetKodu));
+
+      // Kendini ekleme: üye değilsin, cüzdanda en az 1 üye var (terk edilmiş cüzdana girilemez),
+      // en fazla 6 kişi, yazdığın katilimKodu cüzdanın davet koduyla aynı,
+      // uyeler'e sadece SEN eklenirsin, uyeAdlari'nda sadece kendi adın değişir.
+      function katilma() {
+        let eski = resource.data;
+        let yeni = request.resource.data;
+        return !(ben() in eski.uyeler)
+          && eski.uyeler.size() > 0
+          && yeni.uyeler.size() == eski.uyeler.size() + 1
+          && yeni.uyeler.size() <= 6
+          && yeni.uyeler.toSet() == eski.uyeler.toSet().union([ben()].toSet())
+          && yeni.katilimKodu == eski.davetKodu
+          && yeni.diff(eski).affectedKeys().hasOnly(['uyeler', 'uyeAdlari', 'katilimKodu'])
+          && yeni.uyeAdlari.diff(eski.uyeAdlari).affectedKeys().hasOnly([ben()])
+          && yeni.uyeAdlari[ben()] is string
+          && yeni.uyeAdlari[ben()].size() <= 40;
+      }
+
+      // Kendini çıkarma: sadece kendi uid'in silinir. Normal ayrılmada adın eski harcamalarda
+      // görünsün diye uyeAdlari'nda kalır; hesabını silerken adını da silebilirsin
+      // (uyeAdlari'nda yalnızca KENDİ adın silinebilir; eklenemez/değiştirilemez).
+      function ayrilma() {
+        let eski = resource.data;
+        let yeni = request.resource.data;
+        let degisen = yeni.diff(eski).affectedKeys();
+        return ben() in eski.uyeler
+          && yeni.uyeler.size() == eski.uyeler.size() - 1
+          && yeni.uyeler.toSet() == eski.uyeler.toSet().difference([ben()].toSet())
+          && degisen.hasOnly(['uyeler', 'uyeAdlari'])
+          && (!('uyeAdlari' in degisen)
+              || (yeni.uyeAdlari.diff(eski.uyeAdlari).affectedKeys().hasOnly([ben()])
+                  && !(ben() in yeni.uyeAdlari)));
+      }
+
+      // ---------------- HARCAMALAR ----------------
+      match /harcamalar/{harcamaId} {
+        function cuzdan() { return get(/databases/$(database)/documents/cuzdanlar/$(cuzdanId)).data; }
+        function uye() { return girisli() && ben() in cuzdan().uyeler; }
+
+        function tarihGecerli(d) { return d.tarih is string && d.tarih.matches('^[0-9]{2}[.][0-9]{2}[.][0-9]{4}$'); }
+        function tutarGecerli(d) { return d.tutarKurus is int && d.tutarKurus > 0 && d.tutarKurus <= 1000000000; }
+
+        // Ortak harcama: ödeyen ve paylaşanlar cüzdan üyesi olmalı (eşit bölünür)
+        function harcamaGecerli(d) {
+          return d.tur == 'harcama'
+            && d.keys().hasOnly(['tur', 'tutarKurus', 'aciklama', 'kategori', 'tarih', 'odeyen', 'paylasanlar', 'ekleyen', 'olusturma'])
+            && tutarGecerli(d) && tarihGecerli(d)
+            && d.aciklama is string && d.aciklama.size() <= 80
+            && d.kategori is string && d.kategori.size() <= 40
+            && d.odeyen in cuzdan().uyeler
+            && d.paylasanlar is list && d.paylasanlar.size() > 0 && d.paylasanlar.size() <= 6
+            && d.paylasanlar.toSet().size() == d.paylasanlar.size()   // aynı kişi iki kez yok
+            && cuzdan().uyeler.toSet().hasAll(d.paylasanlar);
+        }
+
+        // "Borç ödendi" kaydı: kimden → kime. Sadece ALACAKLI (parayı alan) işaretleyebilir;
+        // borçlu kendi borcunu kendisi kapatamaz.
+        function odemeGecerli(d) {
+          return d.tur == 'odeme'
+            && d.keys().hasOnly(['tur', 'tutarKurus', 'kimden', 'kime', 'tarih', 'ekleyen', 'olusturma'])
+            && tutarGecerli(d) && tarihGecerli(d)
+            && d.kimden != d.kime
+            && d.kimden in cuzdan().uyeler && d.kime in cuzdan().uyeler
+            && d.kime == ben();
+        }
+
+        function kayitGecerli(d) { return harcamaGecerli(d) || odemeGecerli(d); }
+
+        allow read: if uye();
+        allow create: if uye()
+          && request.resource.data.ekleyen == ben()
+          && kayitGecerli(request.resource.data);
+        // Düzenleme ve silme: sadece kaydı ekleyen kişi (ve hâlâ üyeyse)
+        allow update: if uye()
+          && resource.data.ekleyen == ben()
+          && request.resource.data.ekleyen == ben()
+          && kayitGecerli(request.resource.data);
+        allow delete: if uye() && resource.data.ekleyen == ben();
+      }
+    }
+
+    // ---------------- DAVET KODLARI ----------------
+    match /davetler/{kod} {
+      // Kodu bilen giriş yapmış kişi TEK kaydı okuyabilir; listeleme (tüm kodlar) yasak.
+      allow get: if girisli();
+      allow list: if false;
+      // Sadece cüzdanla aynı anda (aynı toplu yazmada) oluşturulur ve o cüzdanı göstermeli.
+      // Kod zaten varsa bu bir "güncelleme" sayılır ve yasaktır → aynı kod iki cüzdanda olamaz.
+      allow create: if girisli()
+        && kodGecerli(kod)
+        && request.resource.data.keys().hasOnly(['cuzdanId'])
+        && getAfter(/databases/$(database)/documents/cuzdanlar/$(request.resource.data.cuzdanId)).data.davetKodu == kod
+        && ben() in getAfter(/databases/$(database)/documents/cuzdanlar/$(request.resource.data.cuzdanId)).data.uyeler;
+      allow update: if false;
+      // Silme: sadece tek üyesi sen olan cüzdan, aynı toplu yazmada silinirken (hesap silme)
+      allow delete: if girisli()
+        && get(/databases/$(database)/documents/cuzdanlar/$(resource.data.cuzdanId)).data.davetKodu == kod
+        && get(/databases/$(database)/documents/cuzdanlar/$(resource.data.cuzdanId)).data.uyeler == [ben()]
+        && !existsAfter(/databases/$(database)/documents/cuzdanlar/$(resource.data.cuzdanId));
+    }
+
+    // Yukarıda izin verilmeyen her şey yasak (giriş yapmamış kimse hiçbir şey okuyamaz).
+    match /{diger=**} {
+      allow read, write: if false;
+    }
+  }
+}

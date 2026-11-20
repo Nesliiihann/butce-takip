@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Bütçem</title>
+  <title>CebimeGetir</title>
   <!-- Telefona uygulama olarak yüklenebilmesi için (PWA) -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#fbf5ee">
@@ -12,13 +12,29 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Bütçem">
+  <meta name="apple-mobile-web-app-title" content="CebimeGetir">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <!-- Seçili temayı sayfa çizilmeden önce uygula (açılışta renk "zıplamasın") -->
+  <!-- Seçili temayı sayfa çizilmeden önce uygula (açılışta renk "zıplamasın").
+       Tema kaydı yoksa: eski kullanıcı (adı ya da işlemi var) → "pudra" (eskiden varsayılan buydu),
+       yeni kullanıcı → "adacayi". Aynı kural aşağıdaki JavaScript'te de var.
+       Zemin renkleri, aşağıdaki TEMALAR[...].onizleme[0] ile aynı olmalı. -->
   <script>
     try {
-      var kayitliTema = JSON.parse(localStorage.getItem("tema"));
-      if (kayitliTema && kayitliTema !== "pudra") document.documentElement.setAttribute("data-tema", kayitliTema);
+      var kok = document.documentElement;
+      var zeminler = { pudra: "#fbf5ee", adacayi: "#f4f6ef", okyanus: "#eef4f6",
+                       gece: "#1c1920", seftali: "#fdf4ec", grafit: "#14181f" };
+      var motifler = { pudra: "romantik", seftali: "romantik", adacayi: "dogal",
+                       okyanus: "okyanus", gece: "geometrik", grafit: "geometrik" };
+      var secili = JSON.parse(localStorage.getItem("tema"));
+      if (!zeminler[secili]) {
+        var eskiKullanici = JSON.parse(localStorage.getItem("ad") || "null") ||
+                            (localStorage.getItem("islemler") || "[]") !== "[]";
+        secili = eskiKullanici ? "pudra" : "adacayi";
+      }
+      if (secili !== "pudra") kok.setAttribute("data-tema", secili);
+      kok.setAttribute("data-desen", motifler[secili]);
+      // Telefonun üst çubuğu temanın zemin rengini alsın
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", zeminler[secili]);
     } catch (e) {}
   </script>
   <!-- Başlık yazı tipleri (internet yoksa yerine benzer yazı tipleri kullanılır) -->
@@ -55,6 +71,7 @@
       --bildirim: #4a3a35; --bildirim-yazi: #ffffff; --bildirim-dugme: #f6c9c1;
       --kurdele-a: #efbcb4; --kurdele-b: #d98f86; --kurdele-c: #e3a59d;
       --isi0: #f7efe9; --isi1: #f6d9d1; --isi2: #eab3a8; --isi3: #d48a80; --isi4: #a9665f; /* takvim */
+      --isi-yazi: #ffffff;   /* takvimde koyu günlerin üstündeki yazı */
       --doku: 0.3;           /* kâğıt dokusunun yoğunluğu */
       --desen-a: none; --desen-b: none; /* arka plan çizimleri (JavaScript tema rengiyle üretir) */
       color-scheme: light;
@@ -99,6 +116,23 @@
       --isi0: #2f2a34; --isi1: #4a3138; --isi2: #6e3f44; --isi3: #9a5550; --isi4: #c7706a;
       --doku: 0.12;
       color-scheme: dark;    /* tarih seçici, açılır listeler de koyu olsun */
+    }
+    /* Grafit: koyu gri-lacivert zemin, yeşil vurgu (modern fintech görünümü) */
+    :root[data-tema="grafit"] {
+      --zemin: #14181f;
+      --leke1: #1a2236; --leke2: #15211d; --leke3: #1b2133; --leke4: #16201c;
+      --kart: #1b2129; --yuzey: #222a35; --yuzey-basili: #2a3340; --girdi: #12161c;
+      --kenar: #2a323d; --cizgi: #34414f;
+      --mor: #22c38e; --mor-koyu: #1aa679; --mor-acik: #1f322c; --vurgu-yazi: #4fd8a8;
+      --adacayi: #e6edf3; --yazi: #e6edf3; --soluk: #8b98a8;
+      --yesil: #3ddc97; --kirmizi: #ff6b6b; --uyari-zemin: #3a2226; --menu: #161b22;
+      --dugme-yazi: #0b1410;  /* parlak yeşil düğmede koyu yazı daha okunaklı */
+      --bildirim: #e6edf3; --bildirim-yazi: #14181f; --bildirim-dugme: #1a9f73;
+      --kurdele-a: #22c38e; --kurdele-b: #1aa679; --kurdele-c: #22c38e;
+      --isi0: #222a35; --isi1: #1d3b33; --isi2: #1d5e48; --isi3: #1f9a6e; --isi4: #3ddc97;
+      --isi-yazi: #0b1410;
+      --doku: 0.08;
+      color-scheme: dark;
     }
     /* Şeftali: sıcak şeftali-mercan, adaçayı başlık */
     :root[data-tema="seftali"] {
@@ -179,6 +213,33 @@
       margin: 2px 0 6px;
     }
     .baslik-alt { font-size: 13px; color: var(--soluk); letter-spacing: 0.5px; }
+
+    /* ---- Temanın tarzı (data-desen) ----
+       Kurdele, kalp, kesikli çerçeve ve el yazısı SADECE Pudra ve Şeftali'de ("romantik").
+       Diğer temalarda başlığın üstünde sade bir ₺ simgesi ve düz yazı tipi var. */
+    .baslik-simge {
+      display: none;
+      position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--kart); border: 1.5px solid var(--kenar);
+      color: var(--mor); font-size: 18px; font-weight: 700;
+      align-items: center; justify-content: center;
+    }
+    :root:not([data-desen="romantik"]) .baslik .kurdele,
+    :root:not([data-desen="romantik"]) .kalp-simge { display: none; }
+    :root:not([data-desen="romantik"]) .baslik-simge { display: flex; }
+    :root:not([data-desen="romantik"]) .baslik,
+    :root:not([data-desen="romantik"]) .ad-kart { border-style: solid; border-color: var(--kenar); }
+    :root:not([data-desen="romantik"]) .baslik-isim,
+    :root:not([data-desen="romantik"]) .ad-kart .ad-onizleme {
+      font-family: "Segoe UI", Arial, sans-serif;
+      font-size: 20px; font-weight: 600; letter-spacing: 0.3px;
+    }
+    /* Gece ve Grafit: başlıklar da modern, düz yazı tipiyle */
+    :root[data-desen="geometrik"] h1,
+    :root[data-desen="geometrik"] .sekme-baslik,
+    :root[data-desen="geometrik"] .ad-kart h2 { font-family: "Segoe UI", Arial, sans-serif; font-weight: 700; }
+    :root[data-desen="geometrik"] h1 { font-size: 38px; letter-spacing: 4px; }
     h3 { color: var(--vurgu-yazi); margin: 0 0 10px; }
     h3.beyaz { color: var(--vurgu-yazi); margin-top: 20px; }
 
@@ -290,6 +351,8 @@
     /* ---------- SEKMELER ve ALT MENÜ ---------- */
     /* Alt menü sayfanın altını kapatmasın diye altta boşluk bırak */
     body { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+    /* Klavyeyle bir kutuya geçince kutu alt menünün arkasında kalmasın */
+    html { scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
     .sekme { display: none; }
     .sekme.aktif { display: block; }
     .sekme-baslik {
@@ -386,6 +449,7 @@
       position: relative;
     }
     .secenek .emoji { font-size: 26px; line-height: 1; }
+    .secenek span:last-child { text-align: center; line-height: 1.2; padding: 0 4px; }
     .secenek.secili { border-color: var(--mor); background: var(--mor-acik); }
     .secenek.secili::after {
       content: "✓"; position: absolute; top: 4px; right: 8px;
@@ -439,6 +503,73 @@
       border: 1px solid rgba(0, 0, 0, 0.08);
     }
     .tema-onizleme i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+
+    /* Ortak cüzdan sekmesi */
+    .ortak-durum { font-size: 14px; color: var(--soluk); text-align: center; margin: 0 0 12px; }
+    .ortak-durum:empty { display: none; }
+    .ortak-durum.hata { color: var(--kirmizi); }
+    .uye-listesi { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+    .uye-listesi span {
+      background: var(--yuzey); border: 1px solid var(--kenar); border-radius: 999px;
+      padding: 4px 10px; font-size: 13px;
+    }
+    .uye-listesi span.ben { border-color: var(--mor); }
+    .davet-satir { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; }
+    .davet-satir strong { font-size: 18px; letter-spacing: 3px; color: var(--vurgu-yazi); }
+    .ortak-form { display: grid; gap: 10px; }
+    .ortak-form h3 { margin: 0; }
+    .ortak-etiket { font-size: 13px; color: var(--soluk); margin-bottom: -6px; }
+    .borc-satir { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--kenar); font-size: 15px; }
+    .borc-satir:first-child { border-top: none; }
+    .borc-satir .kim { flex: 1; min-width: 0; }
+    .borc-satir .tutar { font-weight: 700; white-space: nowrap; }
+    .borc-satir button { flex-shrink: 0; padding: 6px 10px; font-size: 13px; }
+    .borc-not { margin: -4px 0 6px; font-size: 12px; color: var(--soluk); }
+
+    /* Gizlilik bilgilendirmesi ve hesap silme */
+    .gizlilik-liste { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+    .gizlilik-liste li { margin: 0 0 6px; }
+    .gizlilik-onay { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-weight: 600; cursor: pointer; }
+    .gizlilik-onay input { width: 22px; height: 22px; margin: 0; flex-shrink: 0; accent-color: var(--mor); }
+    #hesapSilAlani { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--kenar); display: grid; gap: 8px; }
+    .tehlike-dugme { width: 100%; color: var(--kirmizi) !important; }
+    .tehlike-dugme-dolu, .tehlike-dugme-dolu:hover { width: 100%; background: var(--kirmizi); color: #fff; }
+    .ortak-liste { list-style: none; padding: 0; margin: 0; }
+    .ortak-liste li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--kenar); }
+    .ortak-liste li:first-child { border-top: none; }
+    .ortak-liste .bilgi { flex: 1; min-width: 0; }
+    .ortak-liste .bilgi strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ortak-liste small { color: var(--soluk); font-size: 12px; }
+    .ortak-liste .tutar { font-weight: 700; white-space: nowrap; }
+    .bekliyor-rozet { color: var(--vurgu-yazi); font-size: 12px; font-weight: 600; }
+    .ortak-ayril { width: 100%; margin-bottom: 20px; color: var(--kirmizi) !important; }
+
+    /* Ayarlar: Hesap (Google ile giriş) */
+    .hesap-istege { font-size: 12px; font-weight: 400; color: var(--soluk); margin-left: 4px; }
+    .google-dugme, .google-dugme:hover {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 11px 14px;
+      background: #ffffff; color: #1f1f1f;
+      border: 1px solid #dadce0; border-radius: 10px;
+      font-weight: 600;
+    }
+    .google-dugme:hover { background: #f6f8fa; }
+    .google-dugme:disabled { opacity: 0.6; cursor: default; }
+    .hesap-kart { display: flex; align-items: center; gap: 12px; }
+    .hesap-kart img, .hesap-harf {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; object-fit: cover;
+    }
+    .hesap-harf {
+      display: none; align-items: center; justify-content: center;
+      background: var(--mor); color: var(--dugme-yazi); font-weight: 700; font-size: 18px;
+    }
+    .hesap-bilgi { flex: 1; min-width: 0; }
+    .hesap-bilgi strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hesap-bilgi small { color: var(--soluk); font-size: 12px; }
+    .hesap-kart button { flex-shrink: 0; white-space: nowrap; }
+    .hesap-durum { font-size: 13px; color: var(--soluk); margin: 8px 0 0; }
+    .hesap-durum:empty { display: none; }
+    .hesap-durum.hata { color: var(--kirmizi); }
 
     /* Ayarlar: profil özeti */
     .profil-ozet { margin: 10px 0 0; font-size: 14px; }
@@ -497,7 +628,8 @@
 
     /* Dar ekranda (telefon) özet kartları ve başlıklar sığsın */
     @media (max-width: 480px) {
-      body { padding: 12px; }
+      /* Alttaki boşluk alt menü için: 12px yazılırsa en alttaki içerik menünün altında kalır */
+      body { padding: 12px 12px calc(96px + env(safe-area-inset-bottom)); }
       .ozet { gap: 6px; }
       .kart { padding: 12px 4px; font-size: 13px; }
       .kart span { font-size: 15px; white-space: nowrap; }
@@ -681,10 +813,12 @@
           <ellipse cx="14" cy="0" rx="14" ry="9" transform="rotate(12 14 0)" style="fill:var(--kurdele-a)"/>
           <circle r="5" style="fill:var(--kurdele-b)"/>
         </svg>
+        <!-- Kurdelenin yerine diğer temalarda görünen sade simge -->
+        <span class="baslik-simge" aria-hidden="true">₺</span>
         <!-- Kullanıcının adı JavaScript ile yazılır, ör. "Neslihan'ın" -->
         <div class="baslik-isim" id="baslikIsim"></div>
         <h1>BÜTÇESİ</h1>
-        <div class="baslik-alt">Planla • Tasarruf Et • Hedeflerine Ulaş ♡</div>
+        <div class="baslik-alt">Planla • Tasarruf Et • Hedeflerine Ulaş<span class="kalp-simge"> ♡</span></div>
       </header>
 
       <!-- HIZLI EKLE: tutarı yaz, kategoriye dokun, bugünün tarihiyle eklensin -->
@@ -820,6 +954,107 @@
       </div>
     </section>
 
+    <!-- =============== SEKME: ORTAK (sadece giriş yapınca) ===============
+         Ortak cüzdanlar Firebase Firestore'da durur. Kişisel bütçe verileriyle hiçbir bağı yok. -->
+    <section class="sekme" id="sekme-ortak">
+      <p class="ortak-durum" id="ortakDurum" role="status"></p>
+
+      <!-- Gizlilik bilgilendirmesi: onay verilene kadar görünür; onaysız cüzdan oluşturulamaz/katılınamaz -->
+      <div class="panel gizlilik-panel" id="ortakGizlilik" style="display:none">
+        <h3>🔒 Gizlilik</h3>
+        <div class="gizlilik-yer"></div>
+        <label class="gizlilik-onay">
+          <input type="checkbox" id="gizlilikOnayKutusu">
+          <span>Okudum, kabul ediyorum</span>
+        </label>
+      </div>
+
+      <!-- Henüz cüzdan yokken kısa açıklama -->
+      <div class="panel" id="ortakBos" style="display:none">
+        <h3>👭 Ortak cüzdan nedir?</h3>
+        <p class="limit-alt" style="margin:0">
+          Ev arkadaşların ya da arkadaşlarınla ortak harcamaları (market, fatura, tatil…) burada tutun;
+          kim kime ne kadar borçlu otomatik hesaplanır. En fazla 6 kişi.
+          Kişisel bütçen bu telefonda kalır, buraya karışmaz.
+        </p>
+      </div>
+
+      <!-- Seçili cüzdan -->
+      <div id="ortakCuzdanAlani" style="display:none">
+        <div class="panel">
+          <div class="butce-ust">
+            <h3 style="margin:0" id="ortakCuzdanAdi"></h3>
+            <select id="ortakCuzdanSec" aria-label="Cüzdan seç"></select>
+          </div>
+          <div class="uye-listesi" id="ortakUyeler"></div>
+          <div class="davet-satir">
+            <span>Davet kodu: <strong id="ortakDavetKodu"></strong></span>
+            <button type="button" class="kucuk-buton" id="ortakKodPaylas">Paylaş</button>
+          </div>
+          <p class="limit-alt" id="ortakSenkron" style="margin:8px 0 0"></p>
+        </div>
+
+        <div class="panel">
+          <h3>⚖️ Kim kime borçlu?</h3>
+          <div id="ortakBorclar"></div>
+        </div>
+
+        <div class="panel ortak-form">
+          <h3>➕ Ortak harcama ekle</h3>
+          <input id="oTutar" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="Tutar (₺)">
+          <input id="oAciklama" type="text" maxlength="80" placeholder="Açıklama (ör. Market alışverişi)">
+          <select id="oKategori" aria-label="Kategori"></select>
+          <input id="oTarih" type="date" aria-label="Tarih">
+          <label class="ortak-etiket" for="oOdeyen">Kim ödedi?</label>
+          <select id="oOdeyen"></select>
+          <p class="limit-alt" id="oBolusum" style="margin:0"></p>
+          <button type="button" id="oEkle">Ekle</button>
+        </div>
+
+        <div class="panel">
+          <h3>🧾 Ortak harcamalar</h3>
+          <ul class="ortak-liste" id="ortakListe"></ul>
+        </div>
+
+        <button type="button" class="ikincil ortak-ayril" id="ortakAyril">Bu cüzdandan ayrıl</button>
+      </div>
+
+      <!-- Yeni cüzdan / davet koduyla katıl -->
+      <div class="panel" id="ortakYeniPanel">
+        <h3>Yeni ortak cüzdan</h3>
+        <div class="satir-form">
+          <input id="oCuzdanAd" type="text" maxlength="40" placeholder="Cüzdan adı (ör. Ev 12)">
+          <button type="button" id="oOlustur">Oluştur</button>
+        </div>
+        <h3 style="margin-top:16px">Davet koduyla katıl</h3>
+        <div class="satir-form">
+          <input id="oKod" type="text" maxlength="12" placeholder="Davet kodu (ör. K7M2-QX9P)"
+                 autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false">
+          <button type="button" id="oKatil">Katıl</button>
+        </div>
+        <p class="limit-alt" id="ortakOnayGerekli" style="margin:10px 0 0; display:none">
+          Cüzdan oluşturmak ya da katılmak için yukarıdaki gizlilik bilgilendirmesini onayla.
+        </p>
+      </div>
+    </section>
+
+    <!-- Gizlilik metni: Ortak sekmesinde ve Ayarlar → Gizlilik'te aynısı kullanılır -->
+    <template id="gizlilikMetni">
+      <ul class="gizlilik-liste">
+        <li><strong>Hangi veriler buluta gider:</strong> Google hesabındaki adın, e-posta adresin ve profil
+          fotoğrafın; ortak cüzdan adı, üyeler ve ortak harcamalar.</li>
+        <li><strong>Nereye:</strong> Google Firebase, Avrupa’daki sunucular (Frankfurt).</li>
+        <li><strong>Neden:</strong> Ortak harcamaları cüzdan üyeleriyle paylaşmak ve kim kime ne kadar
+          borçlu olduğunu hesaplamak için.</li>
+        <li><strong>Kimler görebilir:</strong> Sadece o cüzdanın üyeleri. (Üyeler adını görür;
+          e-posta adresin ve fotoğrafın onlara gösterilmez.)</li>
+        <li><strong>Kişisel bütçe verilerin</strong> (kendi harcamaların, bütçen, hedeflerin) buluta
+          <strong>GİTMEZ</strong>, sadece bu telefonda kalır.</li>
+        <li>Hesabını ve bulut verilerini istediğin zaman silebilirsin
+          (Ayarlar → Hesap → “Hesabımı ve bulut verilerimi sil”).</li>
+      </ul>
+    </template>
+
     <!-- =============== SEKME 4: AYARLAR =============== -->
     <section class="sekme" id="sekme-ayarlar">
       <!-- Profil: tanışma ekranındaki cevaplar -->
@@ -835,6 +1070,53 @@
       <div class="panel">
         <h3>🎨 Tema</h3>
         <div class="tema-secenekler" id="temaSecenekleri"></div>
+      </div>
+
+      <!-- Hesap (isteğe bağlı): sadece Google ile giriş. Veriler buluta GÖNDERİLMEZ. -->
+      <div class="panel" id="hesapPanel">
+        <h3>☁️ Hesap <small class="hesap-istege">isteğe bağlı</small></h3>
+        <p class="limit-alt" style="margin:-4px 0 12px">
+          Google hesabınla giriş yapabilirsin. Harcamaların, bütçen ve hedeflerin yine
+          <strong>sadece bu telefonda</strong> kalır; buluta gönderilmez.
+          Giriş yapınca <strong>👭 Ortak</strong> sekmesi açılır; yalnızca oraya eklediğin ortak
+          harcamalar, cüzdan üyeleriyle paylaşılmak için buluta kaydedilir.
+        </p>
+        <!-- Giriş yapılmamışken -->
+        <div id="hesapGirisYok">
+          <button type="button" class="google-dugme" id="googleGiris">
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/>
+              <path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/>
+              <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/>
+            </svg>
+            Google ile giriş yap
+          </button>
+        </div>
+        <!-- Giriş yapılmışken: ad ve profil fotoğrafı -->
+        <div class="hesap-kart" id="hesapGirisli" style="display:none">
+          <img id="hesapFoto" alt="" width="44" height="44" referrerpolicy="no-referrer">
+          <span class="hesap-harf" id="hesapHarf" aria-hidden="true"></span>
+          <div class="hesap-bilgi">
+            <strong id="hesapAd"></strong>
+            <small>Google ile giriş yapıldı</small>
+          </div>
+          <button type="button" class="ikincil" id="cikisYap">Çıkış yap</button>
+        </div>
+        <p class="hesap-durum" id="hesapDurum" role="status"></p>
+        <!-- Hesap silme (sadece giriş yapılmışken) -->
+        <div id="hesapSilAlani" style="display:none">
+          <button type="button" class="ikincil tehlike-dugme" id="hesapSil">Hesabımı ve bulut verilerimi sil</button>
+          <button type="button" class="tehlike-dugme-dolu" id="hesapSilTekrarGiris" style="display:none">
+            🔑 Tekrar giriş yap ve silmeyi bitir</button>
+        </div>
+      </div>
+
+      <!-- Gizlilik: Ortak sekmesindeki bilgilendirmenin aynısı, her zaman okunabilir -->
+      <div class="panel gizlilik-panel">
+        <h3>🔒 Gizlilik</h3>
+        <div class="gizlilik-yer"></div>
+        <p class="limit-alt" id="gizlilikDurum" style="margin:6px 0 0"></p>
       </div>
 
       <!-- Kategori limitleri: sadece limit konmuş kategoriler görünür -->
@@ -902,41 +1184,57 @@
     </section>
   </div>
 
-  <!-- Tanışma ekranı: ilk açılışta 4 adım; sonra Ayarlar > Profil > Düzenle ile açılır -->
+  <!-- Tanışma ekranı: ilk açılışta 6 adım; sonra Ayarlar > Profil > Düzenle ile açılır -->
   <div class="ad-perde" id="tanisma" role="dialog" aria-modal="true" aria-labelledby="tnBaslik1">
     <div class="ad-kart tanisma-kart">
       <!-- Sadece Ayarlar'dan düzenlerken görünür; ilk açılışta kapatılamaz -->
       <button type="button" class="tanisma-kapat" id="tnKapat" title="Vazgeç" aria-label="Vazgeç">✕</button>
-      <div class="adimlar" id="tnNoktalar"><i></i><i></i><i></i><i></i></div>
-      <p class="adim-yazi" id="tnAdimYazi">Adım 1 / 4</p>
+      <div class="adimlar" id="tnNoktalar"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="adim-yazi" id="tnAdimYazi">Adım 1 / 6</p>
 
-      <!-- 1) Ad -->
+      <!-- 1) Ne yapıyor: kategoriler ve sonraki sorular buna göre değişir -->
       <div class="adim" data-adim="1">
-        <div class="adim-ikon">🎀</div>
+        <div class="adim-ikon">👋</div>
         <h2 id="tnBaslik1">Hoş geldin!</h2>
-        <p>Adın ne? Başlıkta senin adınla yazsın.</p>
+        <p>Şu an ne yapıyorsun? Kategorileri buna göre hazırlayacağım.</p>
+        <div class="secenekler" id="tnDurum"></div>
+      </div>
+
+      <!-- 2) Ad -->
+      <div class="adim" data-adim="2">
+        <div class="adim-ikon">✏️</div>
+        <h2>Adın ne?</h2>
+        <p>Başlıkta senin adınla yazsın.</p>
         <input id="tnAd" type="text" maxlength="30" placeholder="Adın" autocomplete="given-name">
         <p class="ad-onizleme" id="tnAdOnizleme"></p>
       </div>
 
-      <!-- 2) Nerede kalıyor -->
-      <div class="adim" data-adim="2">
+      <!-- 3) Tema: dokununca uygulama arkada hemen o temaya geçer -->
+      <div class="adim" data-adim="3">
+        <div class="adim-ikon">🎨</div>
+        <h2>Hangi görünüm sana uyar?</h2>
+        <p>Dokununca hemen değişir. Sonra Ayarlar'dan da değiştirebilirsin.</p>
+        <div class="tema-secenekler" id="tnTema"></div>
+      </div>
+
+      <!-- 4) Nerede kalıyor (seçenekler duruma göre) -->
+      <div class="adim" data-adim="4">
         <div class="adim-ikon">🏡</div>
         <h2>Nerede kalıyorsun?</h2>
         <p>Kira kategorisini buna göre ayarlayacağım.</p>
         <div class="secenekler" id="tnKonut"></div>
       </div>
 
-      <!-- 3) Gelir kaynakları (birden fazla) -->
-      <div class="adim" data-adim="3">
+      <!-- 5) Gelir kaynakları (birden fazla; seçenekler duruma göre) -->
+      <div class="adim" data-adim="5">
         <div class="adim-ikon">💰</div>
         <h2>Paran nereden geliyor?</h2>
         <p>Birden fazla seçebilirsin. Hiçbirini seçmezsen hepsi görünür.</p>
         <div class="secenekler" id="tnGelir"></div>
       </div>
 
-      <!-- 4) Burs / harçlık günü -->
-      <div class="adim" data-adim="4">
+      <!-- 6) Burs / harçlık / maaş günü -->
+      <div class="adim" data-adim="6">
         <div class="adim-ikon">📅</div>
         <h2 id="tnGunBaslik">Bursun ya da harçlığın ne zaman yatıyor?</h2>
         <p>Kaç gün kaldığını ve günde ne kadar harcayabileceğini hesaplayayım.</p>
@@ -966,6 +1264,8 @@
       <button type="button" data-sekme="bugun"><span class="ikon">🏠</span>Bugün</button>
       <button type="button" data-sekme="islemler"><span class="ikon">🧾</span>İşlemler</button>
       <button type="button" data-sekme="analiz"><span class="ikon">📊</span>Analiz</button>
+      <!-- Sadece Google ile giriş yapılınca görünür -->
+      <button type="button" data-sekme="ortak" id="ortakSekmeDugme" style="display:none"><span class="ikon">👭</span>Ortak</button>
       <button type="button" data-sekme="ayarlar"><span class="ikon">⚙️</span>Ayarlar</button>
     </div>
   </nav>
@@ -997,72 +1297,167 @@
     // ---- Tanışma ekranında sorulanlar ----
     // Kullanıcının adı
     let kullaniciAdi = hafizadanOku("ad", "");
-    // Nerede kalıyor: "yurt" | "ev" | "aile" | "yalniz" | null (henüz söylemedi → her şey görünür)
+    // Ne yapıyor: "ogrenci" | "calisan" | "ikisi" | "diger".
+    // Kayıt yoksa (eski kullanıcı) "ogrenci" sayılır → bkz. aktifDurum()
+    let durum = hafizadanOku("durum", null);
+    // Nerede kalıyor: "yurt" | "ev" | "aile" | "yalniz" | "kendi" | null (henüz söylemedi → her şey görünür)
     let konut = hafizadanOku("konut", null);
     // Seçilen gelir kaynakları, ör. ["KYK Bursu", "Aile Harçlığı"]. null ya da boş → hepsi görünür
     let gelirKaynaklari = hafizadanOku("gelirKaynaklari", null);
     // Seçili tema: "pudra" | "adacayi" | "okyanus" | "gece" | "seftali"
-    let tema = hafizadanOku("tema", "pudra");
+    // (kayıt yoksa aşağıda TEMALAR'dan sonra karar verilir: eski kullanıcı → pudra, yeni → adacayi)
+    let tema = hafizadanOku("tema", null);
 
-    // Limit konabilecek (harcama) kategorileri
-    // (üniversite öğrencisine göre)
-    const giderKategorileri = [
-      "Yemekhane", "Kafe / Dışarıda Yemek", "Market", "Ulaşım / Akbil", "Fotokopi / Kırtasiye",
-      "Kitap", "Yurt / Ev Kirası", "Fatura", "Telefon / İnternet",
-      "Eğlence", "Giyim", "Abonelikler", "Diğer"
+    // ---- DURUMA GÖRE KATEGORİLER ----
+    // Tanışma ekranındaki "Şu an ne yapıyorsun?" cevabına göre:
+    //   gider: gider kategorileri   gelir: gelir kategorileri ("Diğer Gelir" hep sonda)
+    //   hizli: Hızlı Ekle'deki 6 düğme   konutlar: "Nerede kalıyorsun?" sorusunun seçenekleri
+    // Eski kategorilerdeki işlemler silinmez; listede, grafikte, limitlerde görünmeye devam eder.
+    const KATEGORI_SETLERI = {
+      ogrenci: {
+        gider: ["Yemekhane", "Kafe / Dışarıda Yemek", "Market", "Ulaşım / Akbil", "Fotokopi / Kırtasiye",
+                "Kitap", "Yurt / Ev Kirası", "Fatura", "Telefon / İnternet",
+                "Eğlence", "Giyim", "Abonelikler", "Diğer"],
+        gelir: ["KYK Bursu", "Özel Burs", "Aile Harçlığı", "Part-time İş", "Diğer Gelir"],
+        hizli: [
+          { emoji: "☕", ad: "Kafe",      kategori: "Kafe / Dışarıda Yemek" },
+          { emoji: "🍽️", ad: "Yemekhane", kategori: "Yemekhane" },
+          { emoji: "🚌", ad: "Ulaşım",    kategori: "Ulaşım / Akbil" },
+          { emoji: "📄", ad: "Fotokopi",  kategori: "Fotokopi / Kırtasiye" },
+          { emoji: "🛒", ad: "Market",    kategori: "Market" },
+          { emoji: "✨", ad: "Diğer",     kategori: "Diğer" }
+        ],
+        konutlar: ["yurt", "ev", "aile", "yalniz"]
+      },
+      calisan: {
+        gider: ["Öğle Yemeği", "Kafe / Dışarıda Yemek", "Market", "Yakıt / Ulaşım", "Kira", "Aidat",
+                "Fatura", "Telefon / İnternet", "Kredi Kartı",
+                "Eğlence", "Giyim", "Abonelikler", "Diğer"],
+        gelir: ["Maaş", "Prim", "Ek İş", "Diğer Gelir"],
+        hizli: [
+          { emoji: "🥪", ad: "Öğle",    kategori: "Öğle Yemeği" },
+          { emoji: "☕", ad: "Kafe",    kategori: "Kafe / Dışarıda Yemek" },
+          { emoji: "⛽", ad: "Ulaşım",  kategori: "Yakıt / Ulaşım" },
+          { emoji: "🛒", ad: "Market",  kategori: "Market" },
+          { emoji: "🎬", ad: "Eğlence", kategori: "Eğlence" },
+          { emoji: "✨", ad: "Diğer",   kategori: "Diğer" }
+        ],
+        konutlar: ["ev", "aile", "yalniz", "kendi"]
+      },
+      // Hem okuyor hem çalışıyor: öğrenci + çalışan kategorileri birleşik
+      // (kira için tek kategori: "Yurt / Ev Kirası")
+      ikisi: {
+        gider: ["Yemekhane", "Öğle Yemeği", "Kafe / Dışarıda Yemek", "Market", "Ulaşım / Akbil", "Yakıt / Ulaşım",
+                "Fotokopi / Kırtasiye", "Kitap", "Yurt / Ev Kirası", "Aidat", "Fatura", "Telefon / İnternet",
+                "Kredi Kartı", "Eğlence", "Giyim", "Abonelikler", "Diğer"],
+        gelir: ["Maaş", "Prim", "Ek İş", "KYK Bursu", "Özel Burs", "Aile Harçlığı", "Part-time İş", "Diğer Gelir"],
+        hizli: [
+          { emoji: "☕", ad: "Kafe",      kategori: "Kafe / Dışarıda Yemek" },
+          { emoji: "🍽️", ad: "Yemekhane", kategori: "Yemekhane" },
+          { emoji: "🥪", ad: "Öğle",      kategori: "Öğle Yemeği" },
+          { emoji: "🚌", ad: "Ulaşım",    kategori: "Ulaşım / Akbil" },
+          { emoji: "🛒", ad: "Market",    kategori: "Market" },
+          { emoji: "✨", ad: "Diğer",     kategori: "Diğer" }
+        ],
+        konutlar: ["yurt", "ev", "aile", "yalniz", "kendi"]
+      },
+      diger: {
+        gider: ["Market", "Kafe / Dışarıda Yemek", "Ulaşım", "Kira", "Aidat", "Fatura", "Telefon / İnternet",
+                "Kredi Kartı", "Sağlık", "Eğlence", "Giyim", "Abonelikler", "Diğer"],
+        gelir: ["Maaş", "Ek İş", "Aile Harçlığı", "Diğer Gelir"],
+        hizli: [
+          { emoji: "🛒", ad: "Market",  kategori: "Market" },
+          { emoji: "☕", ad: "Kafe",    kategori: "Kafe / Dışarıda Yemek" },
+          { emoji: "🚌", ad: "Ulaşım",  kategori: "Ulaşım" },
+          { emoji: "🎬", ad: "Eğlence", kategori: "Eğlence" },
+          { emoji: "💊", ad: "Sağlık",  kategori: "Sağlık" },
+          { emoji: "✨", ad: "Diğer",   kategori: "Diğer" }
+        ],
+        konutlar: ["ev", "aile", "yalniz", "kendi"]
+      }
+    };
+    const DURUMLAR = [
+      { deger: "ogrenci", emoji: "🎓", ad: "Öğrenciyim" },
+      { deger: "calisan", emoji: "💼", ad: "Çalışıyorum" },
+      { deger: "ikisi",   emoji: "📚", ad: "Hem okuyorum hem çalışıyorum" },
+      { deger: "diger",   emoji: "✨", ad: "Diğer" }
     ];
+    const KIRA_KATEGORILERI = ["Yurt / Ev Kirası", "Kira"];
 
-    // Gelir kaynakları (üniversite öğrencisine göre)
-    const gelirKategorileri = ["KYK Bursu", "Özel Burs", "Aile Harçlığı", "Part-time İş", "Diğer Gelir"];
+    // Kayıtlı durum yoksa (eski kullanıcılar) öğrenci say
+    function aktifDurum() { return KATEGORI_SETLERI[durum] ? durum : "ogrenci"; }
+    function kategoriSeti(d = aktifDurum()) { return KATEGORI_SETLERI[d]; }
+
+    // Bütün durumlardaki kategoriler (sıralama ve yedek kontrolü için)
+    const tumGiderKategorileri = [...new Set(Object.values(KATEGORI_SETLERI).flatMap(s => s.gider))];
+    const tumGelirKategorileri = [...new Set(Object.values(KATEGORI_SETLERI).flatMap(s => s.gelir))];
 
     // ---- TEMALAR ----
     // Renklerin çoğu CSS'te (:root[data-tema=...]). Burada sadece JavaScript'in çizdiği şeyler var:
-    //   onizleme: Ayarlar'daki küçük renk örneği   desen: arka plandaki çizimlerin renkleri
+    //   onizleme: küçük renk örneği (ilki = zemin rengi, telefonun üst çubuğu da bunu alır)
+    //   motif: arka plan çizimlerinin türü
+    //     romantik  = kalp, kurdele, çiçek (sadece Pudra ve Şeftali)
+    //     dogal     = yaprak, dal, bozuk para
+    //     okyanus   = dalga, yıldız, bozuk para
+    //     geometrik = nokta, ince çizgi, ₺, küçük grafik çubukları
+    //   desen: arka plandaki çizimlerin renkleri
     //   grafik: harcama pasta grafiğinin dilim renkleri (13 kategori için 13 renk)
     const TEMALAR = {
       pudra: {
-        ad: "Pudra", onizleme: ["#fbf5ee", "#c98a83", "#7d9468"],
+        ad: "Pudra", motif: "romantik", onizleme: ["#fbf5ee", "#c98a83", "#7d9468"],
         desen: { P: "#e8aaa1", PD: "#d98f86", S: "#9fb08a", SD: "#8a9c76", G: "#dcb97c", GD: "#c49d5c" },
         grafik: ["#a9665f", "#c98a83", "#e2b1a8", "#b8796b", "#d9a38f", "#8c5a55", "#f0cfc7",
                  "#c79b7f", "#a07f78", "#e5c3b3", "#bf8f95", "#d8b79a", "#9e8a7e"]
       },
       adacayi: {
-        ad: "Adaçayı", onizleme: ["#f4f6ef", "#7d9468", "#e8b8ae"],
+        ad: "Adaçayı", motif: "dogal", onizleme: ["#f4f6ef", "#7d9468", "#d9c48f"],
         desen: { P: "#e8b8ae", PD: "#d99f94", S: "#9fb08a", SD: "#8a9c76", G: "#d9c48f", GD: "#c2aa6c" },
         grafik: ["#5f7a4e", "#7d9468", "#a3b58e", "#c9d4b6", "#8a9a6a", "#4f6a40", "#b4c19c",
                  "#6c8c7a", "#dfe6d3", "#9aa77e", "#738a5c", "#c3cfa8", "#8fa58c"]
       },
       okyanus: {
-        ad: "Okyanus", onizleme: ["#eef4f6", "#4f8fa8", "#e3c88f"],
+        ad: "Okyanus", motif: "okyanus", onizleme: ["#eef4f6", "#4f8fa8", "#e3c88f"],
         desen: { P: "#9cc7d6", PD: "#6fa8be", S: "#8fc1b5", SD: "#6aa597", G: "#e3c88f", GD: "#c9a865" },
         grafik: ["#336f87", "#4f8fa8", "#7fb2c6", "#a9d0de", "#2a5466", "#6aa597", "#8fc1b5",
                  "#c9a865", "#5c7f8f", "#d3e7ef", "#3f8f9f", "#9bb7c2", "#e3c88f"]
       },
       gece: {
-        ad: "Gece", onizleme: ["#1c1920", "#c7837c", "#a9c19a"],
+        ad: "Gece", motif: "geometrik", onizleme: ["#1c1920", "#c7837c", "#a9c19a"],
         desen: { P: "#6e4a50", PD: "#8a5a5f", S: "#4f5e48", SD: "#5e6e56", G: "#7a6845", GD: "#8f7a50" },
         grafik: ["#eab0a8", "#c7837c", "#a9665f", "#e8c3a0", "#93c48e", "#8fb0d0", "#d6a3c9",
                  "#f0d58c", "#a59aa3", "#7fb8b0", "#d98f86", "#b8a0e0", "#e0b98f"]
       },
       seftali: {
-        ad: "Şeftali", onizleme: ["#fdf4ec", "#e08a6b", "#8a9e6c"],
+        ad: "Şeftali", motif: "romantik", onizleme: ["#fdf4ec", "#e08a6b", "#8a9e6c"],
         desen: { P: "#f4b49a", PD: "#e8957a", S: "#b9c98f", SD: "#9fb276", G: "#f0c27a", GD: "#d9a456" },
         grafik: ["#c26a4c", "#e08a6b", "#f0ab8e", "#f6c9b0", "#d9a456", "#a8573c", "#f0c27a",
                  "#b9c98f", "#e8957a", "#cf8f78", "#fbdcc8", "#9a6a52", "#e6b48a"]
+      },
+      grafit: {
+        ad: "Grafit", motif: "geometrik", onizleme: ["#14181f", "#22c38e", "#3b82f6"],
+        desen: { P: "#2c4f86", PD: "#3a64a8", S: "#2a5a49", SD: "#336b57", G: "#2f7a5c", GD: "#3d8f6d" },
+        // Fintech uygulamalarındaki gibi canlı, birbirinden kolay ayrılan renkler
+        grafik: ["#22c38e", "#3b82f6", "#f5b942", "#a78bfa", "#38bdf8", "#f97362", "#34d399",
+                 "#818cf8", "#fbbf24", "#2dd4bf", "#f472b6", "#94a3b8", "#60a5fa"]
       }
     };
-    if (!TEMALAR[tema]) tema = "pudra";
+    // Tema kaydı yoksa: eski kullanıcının görünümü değişmesin (pudra), yeni kullanıcıya adaçayı
+    if (!TEMALAR[tema]) tema = (kullaniciAdi || islemler.length) ? "pudra" : "adacayi";
     function grafikRenkleri() { return TEMALAR[tema].grafik; }
 
     // ---- Tanışma cevaplarına göre görünen kategoriler ----
-    // Ailesiyle kalanda kira kategorisi gizlenir (eski kira kayıtları silinmez, listede görünmeye devam eder)
+    // Ailesiyle ya da kendi evinde kalanda kira kategorisi gizlenir
+    // (eski kira kayıtları silinmez, listede görünmeye devam eder)
     function aktifGiderKategorileri() {
-      return giderKategorileri.filter(k => !(konut === "aile" && k === "Yurt / Ev Kirası"));
+      const kiraYok = konut === "aile" || konut === "kendi";
+      return kategoriSeti().gider.filter(k => !(kiraYok && KIRA_KATEGORILERI.includes(k)));
     }
-    // Gelir kategorileri: seçilen kaynaklar + "Diğer Gelir". Hiç seçilmediyse hepsi.
+    // Gelir kategorileri: seçilen kaynaklar + "Diğer Gelir". Hiç seçilmediyse duruma göre hepsi.
     function aktifGelirKategorileri() {
-      if (!Array.isArray(gelirKaynaklari) || gelirKaynaklari.length === 0) return gelirKategorileri;
-      return gelirKategorileri.filter(k => gelirKaynaklari.includes(k) || k === "Diğer Gelir");
+      const hepsi = kategoriSeti().gelir;
+      if (!Array.isArray(gelirKaynaklari) || gelirKaynaklari.length === 0) return hepsi;
+      const secilen = hepsi.filter(k => gelirKaynaklari.includes(k) || k === "Diğer Gelir");
+      return secilen.length > 1 ? secilen : hepsi; // seçimler bu duruma uymuyorsa hepsini göster
     }
 
     // Türe göre (gider/gelir) kategori kutusunu doldurur
@@ -1158,6 +1553,7 @@
         localStorage.setItem("hedefler", JSON.stringify(hedefler));
         localStorage.setItem("tekrarlar", JSON.stringify(tekrarlar));
         localStorage.setItem("ad", JSON.stringify(kullaniciAdi));
+        localStorage.setItem("durum", JSON.stringify(durum));
         localStorage.setItem("konut", JSON.stringify(konut));
         localStorage.setItem("gelirKaynaklari", JSON.stringify(gelirKaynaklari));
         localStorage.setItem("tema", JSON.stringify(tema));
@@ -1306,15 +1702,19 @@
       return { tarih, kalanGun };
     }
 
-    // Beklenen paranın adı, seçilen gelir kaynaklarına göre (Türkçe ekleriyle birlikte):
-    // burs varsa "Burs", yoksa aile harçlığı varsa "Harçlık", yoksa part-time varsa "Maaş"
-    function paraTuru(kaynaklar = gelirKaynaklari) {
+    // Beklenen paranın adı (Türkçe ekleriyle birlikte), gelir kaynaklarına ve duruma göre:
+    // maaş varsa "Maaş", yoksa burs varsa "Burs", yoksa aile harçlığı varsa "Harçlık",
+    // yoksa (prim, ek iş, part-time) "Maaş". Hiç seçilmediyse: öğrenciye "Burs", diğerlerine "Maaş".
+    function paraTuru(kaynaklar = gelirKaynaklari, d = aktifDurum()) {
       const k = Array.isArray(kaynaklar) ? kaynaklar : [];
-      if (k.includes("KYK Bursu") || k.includes("Özel Burs") || k.length === 0)
-        return { ad: "Burs", kucuk: "burs", yonelme: "Bursa", tamlayan: "Bursunun", sahip: "Bursun", ikon: "🎓" };
-      if (k.includes("Aile Harçlığı"))
-        return { ad: "Harçlık", kucuk: "harçlık", yonelme: "Harçlığa", tamlayan: "Harçlığının", sahip: "Harçlığın", ikon: "💸" };
-      return { ad: "Maaş", kucuk: "maaş", yonelme: "Maaşa", tamlayan: "Maaşının", sahip: "Maaşın", ikon: "💼" };
+      const maas = { ad: "Maaş", kucuk: "maaş", yonelme: "Maaşa", tamlayan: "Maaşının", sahip: "Maaşın", ikon: "💼" };
+      const burs = { ad: "Burs", kucuk: "burs", yonelme: "Bursa", tamlayan: "Bursunun", sahip: "Bursun", ikon: "🎓" };
+      const harclik = { ad: "Harçlık", kucuk: "harçlık", yonelme: "Harçlığa", tamlayan: "Harçlığının", sahip: "Harçlığın", ikon: "💸" };
+      if (k.includes("Maaş")) return maas;
+      if (k.includes("KYK Bursu") || k.includes("Özel Burs")) return burs;
+      if (k.includes("Aile Harçlığı")) return harclik;
+      if (k.length > 0) return maas;
+      return d === "ogrenci" ? burs : maas;
     }
 
     // Elindeki para = bugüne kadarki tüm gelirler − tüm giderler − birikime ayırdıkların
@@ -1618,7 +2018,7 @@
 
       // Limit konmuş kategoriler, kategori listesindeki sırayla
       const sirali = Object.keys(limitler).sort((a, b) => {
-        const ia = giderKategorileri.indexOf(a), ib = giderKategorileri.indexOf(b);
+        const ia = tumGiderKategorileri.indexOf(a), ib = tumGiderKategorileri.indexOf(b);
         return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
       });
       document.getElementById("limitAciklama").textContent = sirali.length
@@ -1851,15 +2251,7 @@
     });
 
     // ---------- HIZLI EKLE ----------
-    // Düğme → hangi kategoriye eklenecek
-    const hizliKategoriler = [
-      { emoji: "☕", ad: "Kafe",      kategori: "Kafe / Dışarıda Yemek" },
-      { emoji: "🍽️", ad: "Yemekhane", kategori: "Yemekhane" },
-      { emoji: "🚌", ad: "Ulaşım",    kategori: "Ulaşım / Akbil" },
-      { emoji: "📄", ad: "Fotokopi",  kategori: "Fotokopi / Kırtasiye" },
-      { emoji: "🛒", ad: "Market",    kategori: "Market" },
-      { emoji: "✨", ad: "Diğer",     kategori: "Diğer" }
-    ];
+    // Düğmeler duruma göre değişir (bkz. KATEGORI_SETLERI[...].hizli)
     const hizliTutar = document.getElementById("hizliTutar");
     const hizliNot = document.getElementById("hizliNot");
 
@@ -1892,8 +2284,11 @@
       geriAlZamanlayici = setTimeout(() => kutu.classList.remove("goster"), 6000);
     }
 
-    // Düğmeleri oluştur
-    hizliKategoriler.forEach(function (k) {
+    // Düğmeleri (yeniden) oluşturur: açılışta ve durum değişince
+    function hizliDugmeleriCiz() {
+     const alan = document.getElementById("hizliDugmeler");
+     alan.innerHTML = "";
+     kategoriSeti().hizli.forEach(function (k) {
       const dugme = document.createElement("button");
       dugme.type = "button";
       dugme.className = "hizli-dugme";
@@ -1922,8 +2317,9 @@
           if (sira >= 0) islemiKaldir(sira);
         });
       });
-      document.getElementById("hizliDugmeler").appendChild(dugme);
-    });
+      alan.appendChild(dugme);
+     });
+    }
 
     // ---------- TEKRARLAYAN GELİR / GİDERLER ----------
     // "2026-11" → "2026-12"
@@ -2069,7 +2465,7 @@
         hucre.type = "button";
         hucre.className = "gun" + (tarih === bugunYazi ? " bugun-hucre" : "") + (tarih === secilenGun ? " secili" : "");
         hucre.style.setProperty("--hucre", `var(--isi${seviye})`);
-        hucre.style.setProperty("--hucre-yazi", seviye >= 3 ? "#fff" : "var(--yazi)");
+        hucre.style.setProperty("--hucre-yazi", seviye >= 3 ? "var(--isi-yazi)" : "var(--yazi)");
         hucre.title = `${tarih}: ${paraYaz(tutar)}`;
         hucre.innerHTML = `<span>${g}</span>` + (tutar > 0 ? `<small>${Math.round(tutar).toLocaleString("tr-TR")}</small>` : "");
         hucre.addEventListener("click", function () {
@@ -2118,7 +2514,7 @@
         uygulama: "butce-takip",
         surum: 1,
         olusturma: new Date().toISOString(),
-        veriler: { ad: kullaniciAdi, konut, gelirKaynaklari, tema,
+        veriler: { ad: kullaniciAdi, durum, konut, gelirKaynaklari, tema,
                    islemler, limitler, butce, mod, bursGunu, hedefler, tekrarlar }
       };
       const dosya = new Blob([JSON.stringify(yedek, null, 2)], { type: "application/json" });
@@ -2170,9 +2566,10 @@
         bursGunu = v.bursGunu || null;
         if (typeof v.ad === "string" && v.ad.trim()) kullaniciAdi = v.ad.trim().slice(0, 30);
         // Eski yedeklerde bu alanlar yok; o zaman şimdiki ayarlar korunur
-        if ("konut" in v) konut = ["yurt", "ev", "aile", "yalniz"].includes(v.konut) ? v.konut : null;
+        if ("durum" in v) durum = KATEGORI_SETLERI[v.durum] ? v.durum : null;
+        if ("konut" in v) konut = ["yurt", "ev", "aile", "yalniz", "kendi"].includes(v.konut) ? v.konut : null;
         if ("gelirKaynaklari" in v) gelirKaynaklari = Array.isArray(v.gelirKaynaklari)
-          ? v.gelirKaynaklari.filter(k => gelirKategorileri.includes(k)) : null;
+          ? v.gelirKaynaklari.filter(k => tumGelirKategorileri.includes(k)) : null;
         if (TEMALAR[v.tema]) tema = v.tema;
         hedefler = Array.isArray(v.hedefler) ? v.hedefler : [];
         tekrarlar = Array.isArray(v.tekrarlar) ? v.tekrarlar : [];
@@ -2183,6 +2580,7 @@
         kaydet();
         temaUygula();
         adiUygula();
+        hizliDugmeleriCiz();
         kategorileriDoldur();
         kategorileriDoldur("tTur", "tKategori");
         donemleriDoldur(simdikiDonem(mod));
@@ -2232,22 +2630,31 @@
     function adiUygula() {
       const iyelikli = kullaniciAdi ? iyelik(kullaniciAdi) : "";
       document.getElementById("baslikIsim").textContent = iyelikli; // düz yazı (XSS koruması)
-      document.title = kullaniciAdi ? `${iyelikli} Bütçesi` : "Bütçem";
+      document.title = kullaniciAdi ? `${iyelikli} Bütçesi · CebimeGetir` : "CebimeGetir";
     }
 
-    // ---------- TANIŞMA EKRANI (4 adım) ----------
+    // ---------- TANIŞMA EKRANI (5 adım) ----------
+    // Hangi seçeneklerin görüneceği duruma göre: KATEGORI_SETLERI[durum].konutlar / .gelir
     const KONUTLAR = [
       { deger: "yurt",   emoji: "🏫", ad: "Yurtta" },
       { deger: "ev",     emoji: "🏠", ad: "Ev arkadaşlarımla" },
       { deger: "aile",   emoji: "👨‍👩‍👧", ad: "Ailemle" },
-      { deger: "yalniz", emoji: "🔑", ad: "Tek başıma" }
+      { deger: "yalniz", emoji: "🔑", ad: "Tek başıma" },
+      { deger: "kendi",  emoji: "🏡", ad: "Kendi evimde" }
     ];
     const KAYNAKLAR = [
+      { deger: "Maaş",          emoji: "💼", ad: "Maaş" },
+      { deger: "Prim",          emoji: "🎁", ad: "Prim" },
+      { deger: "Ek İş",         emoji: "🛠️", ad: "Ek iş" },
       { deger: "KYK Bursu",     emoji: "🎓", ad: "KYK Bursu" },
       { deger: "Özel Burs",     emoji: "🏅", ad: "Özel burs" },
       { deger: "Aile Harçlığı", emoji: "👪", ad: "Aile harçlığı" },
-      { deger: "Part-time İş",  emoji: "💼", ad: "Part-time iş" }
+      { deger: "Part-time İş",  emoji: "⏱️", ad: "Part-time iş" }
     ];
+    // Bir durumda görünen seçenekler (sırası KATEGORI_SETLERI'ndeki gibi)
+    const konutSecenekleri = d => kategoriSeti(d).konutlar.map(v => KONUTLAR.find(k => k.deger === v));
+    const kaynakSecenekleri = d => kategoriSeti(d).gelir
+      .map(v => KAYNAKLAR.find(k => k.deger === v)).filter(Boolean); // "Diğer Gelir" seçenek değil
 
     // Ekrandaki geçici cevaplar: "Bitir"e basılana kadar asıl ayarlara dokunulmaz
     let tn = null;
@@ -2280,7 +2687,10 @@
       tn = {
         adim: 1,
         duzenleme: !!duzenleme,
+        // Eski kullanıcı (adı ya da işlemi var, durumu kayıtlı değil) → "Öğrenciyim" hazır seçili gelir
+        durum: KATEGORI_SETLERI[durum] ? durum : ((kullaniciAdi || islemler.length) ? "ogrenci" : null),
         ad: kullaniciAdi || "",
+        eskiTema: tema,   // düzenlerken ✕ ile vazgeçilirse bu temaya geri dönülür
         konut: konut,
         gelirler: new Set(gelirler),
         gun: bursGunu || "",
@@ -2299,35 +2709,59 @@
       tn = null;
     }
 
+    // ✕ / Esc ile vazgeçme: ekranda denenmiş tema da eski hâline döner
+    function tanismaVazgec() {
+      if (tn && tn.eskiTema !== tema) {
+        tema = tn.eskiTema;
+        temaUygula();
+        ekraniGuncelle();
+      }
+      tanismaKapat();
+    }
+
     // O anki adımı ekrana çizer
     function tnCiz() {
       document.querySelectorAll("#tanisma .adim").forEach(a =>
         a.classList.toggle("aktif", Number(a.dataset.adim) === tn.adim));
       document.querySelectorAll("#tnNoktalar i").forEach((n, i) => n.classList.toggle("dolu", i < tn.adim));
-      tnEl("tnAdimYazi").textContent = `Adım ${tn.adim} / 4`;
+      tnEl("tnAdimYazi").textContent = `Adım ${tn.adim} / 6`;
       tnEl("tnGeri").style.visibility = tn.adim === 1 ? "hidden" : "visible";
-      tnEl("tnIleri").textContent = tn.adim === 4 ? (tn.duzenleme ? "Kaydet ✓" : "Bitir ✓") : "İleri →";
+      tnEl("tnIleri").textContent = tn.adim === 6 ? (tn.duzenleme ? "Kaydet ✓" : "Bitir ✓") : "İleri →";
       tnEl("tnHata").textContent = "";
 
-      // 1) Ad önizlemesi
+      // 1) Ne yapıyor: tek seçim. Sonraki soruların seçenekleri buna göre değişir.
+      secenekleriCiz("tnDurum", DURUMLAR, d => tn.durum === d, d => { tn.durum = d; }, false);
+      const d = tn.durum || "ogrenci";
+      // 2) Ad önizlemesi
       tnEl("tnAdOnizleme").textContent = tn.ad.trim() ? `${iyelik(tn.ad.trim())} Bütçesi` : "";
-      // 2) Konut: tek seçim
-      secenekleriCiz("tnKonut", KONUTLAR, d => tn.konut === d, d => { tn.konut = d; }, false);
-      // 3) Gelir: çoklu seçim
-      secenekleriCiz("tnGelir", KAYNAKLAR, d => tn.gelirler.has(d),
-        d => { tn.gelirler.has(d) ? tn.gelirler.delete(d) : tn.gelirler.add(d); }, true);
-      // 4) Gün sorusu seçilen gelire göre: "Bursun …", "Harçlığın …", "Maaşın …"
-      const pt = paraTuru([...tn.gelirler]);
-      tnEl("tnGunBaslik").textContent = tn.gelirler.size === 0
-        ? "Bursun ya da harçlığın her ayın kaçında yatıyor?"
-        : `${pt.sahip} her ayın kaçında yatıyor?`;
+      // 3) Tema: düğmeler temaUygula() içinde çiziliyor (seçili olan işaretli)
+      // 4) Konut: tek seçim (seçenekler duruma göre; ör. çalışana "Yurtta" sorulmaz)
+      secenekleriCiz("tnKonut", konutSecenekleri(d), v => tn.konut === v, v => { tn.konut = v; }, false);
+      // 5) Gelir: çoklu seçim (öğrenciye burs/harçlık, çalışana maaş/prim/ek iş, ikisine hepsi)
+      secenekleriCiz("tnGelir", kaynakSecenekleri(d), v => tn.gelirler.has(v),
+        v => { tn.gelirler.has(v) ? tn.gelirler.delete(v) : tn.gelirler.add(v); }, true);
+      // 6) Gün sorusu seçilen gelire göre: "Bursun …", "Harçlığın …", "Maaşın …"
+      const gecerliGelirler = tnGecerliGelirler();
+      const pt = paraTuru(gecerliGelirler, d);
+      const genelSoru = {
+        ogrenci: "Bursun ya da harçlığın her ayın kaçında yatıyor?",
+        calisan: "Maaşın her ayın kaçında yatıyor?",
+        ikisi:   "Maaşın ya da bursun her ayın kaçında yatıyor?",
+        diger:   "Paran her ayın kaçında yatıyor?"
+      }[d];
+      tnEl("tnGunBaslik").textContent = gecerliGelirler.length === 0 ? genelSoru : `${pt.sahip} her ayın kaçında yatıyor?`;
       tnEl("tnGun").disabled = tn.gunYok;
 
       // Adım değişince ilgili kutuya odaklan
       setTimeout(() => {
-        if (tn && tn.adim === 1) tnEl("tnAd").focus();
-        if (tn && tn.adim === 4 && !tn.gunYok) tnEl("tnGun").focus();
+        if (tn && tn.adim === 2) tnEl("tnAd").focus();
+        if (tn && tn.adim === 6 && !tn.gunYok) tnEl("tnGun").focus();
       }, 30);
+    }
+
+    // Seçili gelirlerden, seçilen durumda gerçekten görünenler (durum değiştiyse eskiler elenir)
+    function tnGecerliGelirler() {
+      return kaynakSecenekleri(tn.durum || "ogrenci").map(k => k.deger).filter(v => tn.gelirler.has(v));
     }
 
     tnEl("tnAd").addEventListener("input", function () {
@@ -2344,9 +2778,11 @@
     // İleri: o adımın cevabını kontrol et
     function tnIleri() {
       const hata = mesaj => { tnEl("tnHata").textContent = mesaj; };
-      if (tn.adim === 1 && !tn.ad.trim()) { hata("Adını yazar mısın?"); tnEl("tnAd").focus(); return; }
-      if (tn.adim === 2 && !tn.konut) { hata("Birini seç lütfen."); return; }
-      if (tn.adim === 4) {
+      if (tn.adim === 1 && !tn.durum) { hata("Birini seç lütfen."); return; }
+      if (tn.adim === 2 && !tn.ad.trim()) { hata("Adını yazar mısın?"); tnEl("tnAd").focus(); return; }
+      // Durum değiştiyse eski konut seçimi artık listede olmayabilir (ör. "Yurtta" → çalışan)
+      if (tn.adim === 4 && !kategoriSeti(tn.durum).konutlar.includes(tn.konut)) { hata("Birini seç lütfen."); return; }
+      if (tn.adim === 6) {
         const gun = parseInt(tn.gun);
         if (!tn.gunYok && tn.gun !== "" && !(gun >= 1 && gun <= 31)) { hata("1 ile 31 arasında bir gün yaz."); return; }
         tanismayiBitir();
@@ -2357,30 +2793,32 @@
     }
     tnEl("tnIleri").addEventListener("click", tnIleri);
     tnEl("tnGeri").addEventListener("click", () => { if (tn.adim > 1) { tn.adim--; tnCiz(); } });
-    tnEl("tnKapat").addEventListener("click", tanismaKapat);
+    tnEl("tnKapat").addEventListener("click", tanismaVazgec);
     // Enter = İleri; Esc = vazgeç (sadece düzenlerken)
     tnEl("tanisma").addEventListener("keydown", function (e) {
       if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.type !== "checkbox") { e.preventDefault(); tnIleri(); }
-      if (e.key === "Escape" && tn && tn.duzenleme) tanismaKapat();
+      if (e.key === "Escape" && tn && tn.duzenleme) tanismaVazgec();
     });
 
     // Cevapları uygulamaya işle. Hiçbir işlem, limit ya da hedef silinmez.
     function tanismayiBitir() {
       const ilkKez = !tn.duzenleme;
+      durum = tn.durum;
       kullaniciAdi = tn.ad.trim().slice(0, 30);
       konut = tn.konut;
-      // Sabit sırada sakla
-      gelirKaynaklari = KAYNAKLAR.map(k => k.deger).filter(k => tn.gelirler.has(k));
+      // Sadece bu durumda görünen kaynaklar, sabit sırada
+      gelirKaynaklari = tnGecerliGelirler();
       const gun = parseInt(tn.gun);
       bursGunu = !tn.gunYok && gun >= 1 && gun <= 31 ? gun : null;
 
       kaydet();
       tanismaKapat();
       adiUygula();
+      hizliDugmeleriCiz();
       kategorileriDoldur();
       kategorileriDoldur("tTur", "tKategori");
       ekraniGuncelle();
-      geriAlGoster(ilkKez ? `🎀 Hoş geldin, ${kullaniciAdi}!` : "✓ Profil güncellendi", null);
+      geriAlGoster(ilkKez ? `👋 Hoş geldin, ${kullaniciAdi}!` : "✓ Profil güncellendi", null);
     }
 
     // ---------- AYARLAR: PROFİL ÖZETİ ----------
@@ -2389,9 +2827,11 @@
       const kaynakAdlari = Array.isArray(gelirKaynaklari) && gelirKaynaklari.length
         ? gelirKaynaklari.map(d => (KAYNAKLAR.find(k => k.deger === d) || { ad: d }).ad).join(", ")
         : "Hepsi (seçilmedi)";
+      const durumAdi = DURUMLAR.find(d => d.deger === aktifDurum()).ad;
       const satirlar = [
+        ["Ne yapıyorsun", durumAdi + (durum ? "" : " (varsayılan)")],
         ["Ad", kullaniciAdi ? `${kullaniciAdi} (“${iyelik(kullaniciAdi)} Bütçesi”)` : "—"],
-        ["Kaldığın yer", konutAdi ? konutAdi + (konut === "aile" ? " · kira kategorisi gizli" : "") : "Belirtilmedi"],
+        ["Kaldığın yer", konutAdi ? konutAdi + (konut === "aile" || konut === "kendi" ? " · kira kategorisi gizli" : "") : "Belirtilmedi"],
         ["Gelir kaynakları", kaynakAdlari],
         [`${paraTuru().ad} günü`, bursGunu ? `Her ayın ${bursGunu}. günü` : "Belirtilmedi"]
       ];
@@ -2413,9 +2853,9 @@
       return getComputedStyle(document.documentElement).getPropertyValue(degisken).trim();
     }
 
-    // Arka plandaki küçük çizimleri (kalp, yaprak, bozuk para, kurdele, yıldız, puantiye)
-    // seçili temanın renkleriyle SVG olarak üretir
-    function desenleriUret(r) {
+    // Arka plandaki küçük çizimleri seçili temanın motifi ve renkleriyle SVG olarak üretir.
+    // İki karo üretilir (340px ve 430px); farklı boyda oldukları için desen tekrar ediyor gibi durmaz.
+    function desenleriUret(r, motif) {
       const kalp = "M10 17 L2.6 9.6 A4.6 4.6 0 0 1 10 3.6 A4.6 4.6 0 0 1 17.4 9.6 Z";
       const hrt = (x, y, o, c) => `<path transform='translate(${x} ${y}) scale(${o})' d='${kalp}' fill='${c}'/>`;
       const dal = (x, y, a, o = 1) =>
@@ -2430,33 +2870,88 @@
       const yildiz = (x, y, c) =>
         `<path transform='translate(${x} ${y})' d='M0 -6 L1.5 -1.5 L6 0 L1.5 1.5 L0 6 L-1.5 1.5 L-6 0 L-1.5 -1.5Z' fill='${c}'/>`;
       const nokta = (x, y, rr, c) => `<circle cx='${x}' cy='${y}' r='${rr}' fill='${c}'/>`;
+      // Beş yapraklı küçük çiçek
+      const cicek = (x, y, o, c, orta) => `<g transform='translate(${x} ${y}) scale(${o})'>` +
+        [0, 72, 144, 216, 288].map(a => `<ellipse cx='0' cy='-6' rx='3.6' ry='5.6' transform='rotate(${a})' fill='${c}'/>`).join("") +
+        `<circle r='2.8' fill='${orta}'/></g>`;
+      // Tek yaprak (ortasında damar)
+      const yaprak = (x, y, a, o) => `<g transform='translate(${x} ${y}) rotate(${a}) scale(${o})'>` +
+        `<path d='M0 0 Q11 -10 22 0 Q11 10 0 0Z' fill='${r.S}'/><path d='M1 0 L20 0' stroke='${r.SD}' stroke-width='1'/></g>`;
+      // Dalga çizgisi
+      const dalga = (x, y, o, c) =>
+        `<path transform='translate(${x} ${y}) scale(${o})' d='M0 0 q7 -7 14 0 t14 0 t14 0' fill='none' stroke='${c}' stroke-width='2.2' stroke-linecap='round'/>`;
+      // Beş köşeli yıldız
+      const yildiz5 = (x, y, rr, c) => {
+        let d = "";
+        for (let i = 0; i < 10; i++) {
+          const aci = Math.PI / 5 * i - Math.PI / 2, rad = i % 2 ? rr * 0.45 : rr;
+          d += (i ? "L" : "M") + (x + rad * Math.cos(aci)).toFixed(1) + " " + (y + rad * Math.sin(aci)).toFixed(1) + " ";
+        }
+        return `<path d='${d}Z' fill='${c}'/>`;
+      };
+      // Geometrik: ince çizgi, halka, ₺ işareti, küçük grafik çubukları
+      const cizgi = (x, y, uz, a, c) =>
+        `<line transform='translate(${x} ${y}) rotate(${a})' x1='0' y1='0' x2='${uz}' y2='0' stroke='${c}' stroke-width='1.4' stroke-linecap='round'/>`;
+      const halka = (x, y, rr, c) => `<circle cx='${x}' cy='${y}' r='${rr}' fill='none' stroke='${c}' stroke-width='1.4'/>`;
+      const lira = (x, y, boy, c) =>
+        `<text x='${x}' y='${y}' font-family='Segoe UI, Arial, sans-serif' font-size='${boy}' font-weight='700' fill='${c}'>₺</text>`;
+      const cubuk = (x, y, o, c) => `<g transform='translate(${x} ${y}) scale(${o})' fill='${c}'>` +
+        `<rect x='0' y='-7' width='5' height='7' rx='1'/><rect x='7' y='-13' width='5' height='13' rx='1'/><rect x='14' y='-19' width='5' height='19' rx='1'/></g>`;
 
-      const a = `<svg xmlns='http://www.w3.org/2000/svg' width='340' height='340'><g opacity='0.55'>` +
-        hrt(30, 40, 1.1, r.P) + dal(250, 30, 20) + para(120, 235) + kurdele(275, 205, -8) +
-        nokta(180, 90, 2.5, r.P) + nokta(195, 101, 2, r.S) + nokta(171, 108, 1.8, r.G) + yildiz(60, 290, r.G) +
-        hrt(295, 300, 0.6, r.S) + nokta(30, 170, 2, r.P) + nokta(42, 180, 1.6, r.P) + nokta(24, 186, 1.4, r.S) +
-        `</g></svg>`;
-      const b = `<svg xmlns='http://www.w3.org/2000/svg' width='430' height='430'><g opacity='0.45'>` +
-        dal(90, 300, -35, 0.8) + hrt(320, 110, 0.8, r.P) + para(380, 380, 8) + yildiz(200, 40, r.P) +
-        nokta(220, 250, 2.2, r.S) + nokta(232, 262, 1.6, r.G) + hrt(150, 160, 0.5, r.PD) +
-        `</g></svg>`;
+      let ic1, ic2; // iki karonun içindeki çizimler
+      if (motif === "romantik") {        // Pudra, Şeftali: kalp, kurdele, çiçek
+        ic1 = hrt(30, 40, 1.1, r.P) + dal(250, 30, 20) + cicek(120, 235, 1.2, r.P, r.G) + kurdele(275, 205, -8) +
+          nokta(180, 90, 2.5, r.P) + nokta(195, 101, 2, r.S) + nokta(171, 108, 1.8, r.G) + yildiz(60, 290, r.G) +
+          hrt(295, 300, 0.6, r.S) + nokta(30, 170, 2, r.P) + nokta(42, 180, 1.6, r.P) + nokta(24, 186, 1.4, r.S);
+        ic2 = dal(90, 300, -35, 0.8) + hrt(320, 110, 0.8, r.P) + cicek(380, 380, 0.9, r.PD, r.G) + yildiz(200, 40, r.P) +
+          nokta(220, 250, 2.2, r.S) + nokta(232, 262, 1.6, r.G) + hrt(150, 160, 0.5, r.PD);
+      } else if (motif === "dogal") {    // Adaçayı: yaprak, dal, bozuk para
+        ic1 = dal(40, 30, -20) + yaprak(250, 60, 30, 1.1) + para(120, 235) + dal(270, 190, 25, 0.9) +
+          yaprak(60, 285, -40, 0.9) + nokta(180, 95, 2.4, r.G) + nokta(193, 104, 1.8, r.S) + nokta(30, 170, 2, r.S);
+        ic2 = dal(90, 300, -35, 0.8) + para(380, 380, 8) + yaprak(320, 110, 15, 0.9) + yaprak(200, 40, -60, 0.7) +
+          nokta(220, 250, 2.2, r.G) + nokta(232, 262, 1.6, r.S);
+      } else if (motif === "okyanus") {  // Okyanus: dalga, yıldız, bozuk para
+        ic1 = dalga(30, 50, 1, r.P) + dalga(230, 200, 1.1, r.PD) + yildiz5(270, 60, 9, r.G) + para(110, 240, 10) +
+          yildiz(60, 290, r.G) + nokta(180, 95, 2.4, r.P) + nokta(193, 104, 1.8, r.S) + dalga(150, 320, 0.8, r.S);
+        ic2 = dalga(80, 300, 1, r.P) + yildiz5(320, 110, 7, r.G) + para(380, 380, 8) + dalga(200, 40, 0.8, r.PD) +
+          nokta(220, 250, 2.2, r.S) + yildiz(150, 160, r.G);
+      } else {                           // Gece, Grafit: sade geometrik
+        ic1 = lira(40, 60, 20, r.G) + cubuk(250, 75, 1, r.P) + cizgi(110, 230, 40, -20, r.S) + halka(280, 230, 7, r.S) +
+          nokta(180, 95, 2, r.G) + nokta(192, 95, 2, r.G) + nokta(204, 95, 2, r.G) + cizgi(40, 290, 30, 0, r.P) +
+          nokta(300, 300, 2, r.GD);
+        ic2 = cubuk(80, 320, 0.9, r.PD) + lira(320, 120, 16, r.G) + cizgi(200, 40, 36, 25, r.S) + halka(380, 380, 6, r.P) +
+          nokta(220, 250, 2, r.S) + nokta(232, 250, 2, r.S) + nokta(244, 250, 2, r.S);
+      }
+      const a = `<svg xmlns='http://www.w3.org/2000/svg' width='340' height='340'><g opacity='0.55'>${ic1}</g></svg>`;
+      const b = `<svg xmlns='http://www.w3.org/2000/svg' width='430' height='430'><g opacity='0.45'>${ic2}</g></svg>`;
       const url = svg => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
       return [url(a), url(b)];
     }
 
-    // Seçili temayı uygular: renkler (CSS), arka plan çizimleri, Ayarlar'daki seçim
+    // Seçili temayı uygular: renkler (CSS), tarz (kurdele/₺, yazı tipi), arka plan çizimleri,
+    // telefonun üst çubuğu ve tema seçim düğmeleri
     function temaUygula() {
       const kok = document.documentElement;
+      const t = TEMALAR[tema];
       if (tema === "pudra") kok.removeAttribute("data-tema");
       else kok.setAttribute("data-tema", tema);
-      const [a, b] = desenleriUret(TEMALAR[tema].desen);
+      kok.setAttribute("data-desen", t.motif);
+      const [a, b] = desenleriUret(t.desen, t.motif);
       kok.style.setProperty("--desen-a", a);
       kok.style.setProperty("--desen-b", b);
+      const ustCubuk = document.querySelector('meta[name="theme-color"]');
+      if (ustCubuk) ustCubuk.setAttribute("content", t.onizleme[0]); // zemin rengi
       temaSecenekleriniCiz();
     }
 
+    // Tema düğmeleri iki yerde: Ayarlar (hemen kaydedilir) ve tanışma ekranı ("Bitir"de kaydedilir)
     function temaSecenekleriniCiz() {
-      const alan = document.getElementById("temaSecenekleri");
+      temaDugmeleriCiz("temaSecenekleri", true);
+      temaDugmeleriCiz("tnTema", false);
+    }
+
+    function temaDugmeleriCiz(alanId, hemenKaydet) {
+      const alan = document.getElementById(alanId);
       alan.innerHTML = "";
       Object.entries(TEMALAR).forEach(function ([anahtar, t]) {
         const d = document.createElement("button");
@@ -2469,8 +2964,8 @@
           `<span>${t.ad}${anahtar === "gece" ? " 🌙" : ""}</span>`;
         d.addEventListener("click", function () {
           tema = anahtar;
-          kaydet();
-          temaUygula();
+          if (hemenKaydet) kaydet();
+          temaUygula();     // uygulama arkada hemen bu temaya geçer
           ekraniGuncelle(); // grafik renkleri yeni temayla yeniden çizilsin
         });
         alan.appendChild(d);
@@ -2584,7 +3079,7 @@
     }
 
     // ---------- SEKMELER ----------
-    const sekmeBasliklari = { islemler: "İşlemler", analiz: "Analiz", ayarlar: "Ayarlar" };
+    const sekmeBasliklari = { islemler: "İşlemler", analiz: "Analiz", ortak: "Ortak Cüzdan", ayarlar: "Ayarlar" };
     function sekmeAc(ad) {
       document.querySelectorAll(".sekme").forEach(s => s.classList.toggle("aktif", s.id === "sekme-" + ad));
       document.querySelectorAll(".alt-menu button").forEach(b => b.classList.toggle("aktif", b.dataset.sekme === ad));
@@ -2599,8 +3094,810 @@
       b.addEventListener("click", () => sekmeAc(b.dataset.sekme));
     });
 
+    // ---------- HESAP: GOOGLE İLE GİRİŞ (isteğe bağlı, Firebase Authentication) ----------
+    // ÖNEMLİ:
+    //  • Kişisel harcamalar, bütçe, hedefler vb. buluta GÖNDERİLMEZ; hepsi bu telefonda
+    //    (localStorage) kalır. Buluta (Firestore) sadece "Ortak" sekmesindeki ortak cüzdanlar gider.
+    //  • Google Analytics KULLANILMIYOR (getAnalytics yok, measurementId yok).
+    //  • Firebase sadece gerektiğinde yüklenir: Hesap bölümü ekranda görününce ya da daha önce
+    //    giriş yapılmışsa. Hiç kullanmayan için uygulama eskisi gibi çalışır.
+    //  • Yüklenemezse (internet yok) uygulama bozulmaz; Hesap bölümü "İnternet bağlantısı gerekli" der.
+    // Not: Aşağıdaki apiKey gizli bir şifre değildir; Firebase web uygulamalarında herkese açıktır.
+    const FIREBASE_SURUM = "10.12.2";
+    const firebaseAyarlari = {
+      apiKey: "AIzaSyAJ0ft-DQQ4rfTMCaEcmqdjJXxdz840Jow",
+      authDomain: "butce-takip-3c3e3.firebaseapp.com",
+      projectId: "butce-takip-3c3e3",
+      storageBucket: "butce-takip-3c3e3.firebasestorage.app",
+      messagingSenderId: "700838871431",
+      appId: "1:700838871431:web:7749850b58999ae0741322"
+    };
+    // Bu telefonda daha önce giriş yapıldı mı? (Sadece "evet" bilgisi; hesap bilgisi değil.)
+    // Açılışta Firebase'i yükleyip oturumu göstermek için kullanılır.
+    const GIRIS_ISARETI = "hesapGirisYapildi";
+
+    const FIREBASE_KOK = `https://www.gstatic.com/firebasejs/${FIREBASE_SURUM}/`;
+    let firebase = null;          // yüklenince: { auth, f, uygulama }  (f = firebase-auth fonksiyonları)
+    let firebaseYukleniyor = null;
+
+    const hesapEl = id => document.getElementById(id);
+
+    function hesapDurumYaz(mesaj, hataMi) {
+      const p = hesapEl("hesapDurum");
+      p.textContent = mesaj || "";
+      p.classList.toggle("hata", !!hataMi);
+    }
+
+    // Firebase'i internetten yükler (bir kez). Başarısızsa hata fırlatır.
+    function firebaseYukle() {
+      if (firebase) return Promise.resolve(firebase);
+      if (firebaseYukleniyor) return firebaseYukleniyor;
+      firebaseYukleniyor = Promise.all([import(FIREBASE_KOK + "firebase-app.js"), import(FIREBASE_KOK + "firebase-auth.js")])
+        .then(function ([uygulamaModulu, f]) {
+          const uygulama = uygulamaModulu.initializeApp(firebaseAyarlari);
+          const auth = f.getAuth(uygulama);
+          auth.languageCode = "tr"; // Google giriş penceresi Türkçe olsun
+          firebase = { auth, f, uygulama };
+          f.onAuthStateChanged(auth, hesabiGoster); // oturum açılınca/kapanınca ekranı güncelle
+          return firebase;
+        })
+        .catch(function (hata) {
+          firebaseYukleniyor = null; // sonra tekrar denenebilsin
+          throw hata;
+        });
+      return firebaseYukleniyor;
+    }
+
+    // Giriş yapılmış/yapılmamış görünümü
+    function hesabiGoster(kullanici) {
+      ortakOturum(kullanici); // Ortak sekmesini göster/gizle, cüzdanları dinle
+      hesapEl("hesapGirisYok").style.display = kullanici ? "none" : "";
+      hesapEl("hesapGirisli").style.display = kullanici ? "flex" : "none";
+      hesapEl("hesapSilAlani").style.display = kullanici ? "" : "none";
+      if (!kullanici) { hesapEl("hesapSilTekrarGiris").style.display = "none"; hesapEl("hesapSil").disabled = false; }
+      hesapEl("googleGiris").disabled = false;
+      try {
+        if (kullanici) localStorage.setItem(GIRIS_ISARETI, "1");
+        else localStorage.removeItem(GIRIS_ISARETI);
+      } catch (e) {}
+      if (!kullanici) return;
+
+      const ad = kullanici.displayName || "Google kullanıcısı";
+      hesapEl("hesapAd").textContent = ad; // düz yazı (XSS koruması)
+      const foto = hesapEl("hesapFoto"), harf = hesapEl("hesapHarf");
+      harf.textContent = ad.charAt(0).toLocaleUpperCase("tr-TR");
+      // Fotoğraf yoksa ya da yüklenemezse adın baş harfini göster
+      const harfiGoster = () => { foto.style.display = "none"; harf.style.display = "flex"; };
+      if (kullanici.photoURL) {
+        foto.onerror = harfiGoster;
+        foto.style.display = ""; harf.style.display = "none";
+        foto.src = kullanici.photoURL;
+      } else harfiGoster();
+      hesapDurumYaz("");
+    }
+
+    // Internet / ortam durumuna göre Hesap bölümünü hazırla; uygunsa Firebase'i arkada yükle
+    function hesapHazirla() {
+      if (firebase) return;
+      if (location.protocol === "file:") {
+        hesapDurumYaz("Google ile giriş için uygulamayı internet adresinden aç (dosya olarak açınca çalışmaz).");
+        return;
+      }
+      if (!navigator.onLine) {
+        hesapDurumYaz("İnternet bağlantısı gerekli.", true);
+        return;
+      }
+      firebaseYukle()
+        .then(() => { if (hesapEl("hesapDurum").textContent.startsWith("İnternet")) hesapDurumYaz(""); })
+        .catch(() => hesapDurumYaz("İnternet bağlantısı gerekli.", true));
+    }
+
+    // "Google ile giriş yap"
+    hesapEl("googleGiris").addEventListener("click", function () {
+      const dugme = this;
+      if (location.protocol === "file:") { hesapHazirla(); return; }
+      if (!navigator.onLine) { hesapDurumYaz("İnternet bağlantısı gerekli.", true); return; }
+
+      const girisYap = function () {
+        dugme.disabled = true;
+        hesapDurumYaz("Google penceresi açılıyor…");
+        const { auth, f } = firebase;
+        f.signInWithPopup(auth, new f.GoogleAuthProvider())
+          .then(() => hesapDurumYaz(""))
+          .catch(function (hata) {
+            const kod = hata && hata.code;
+            const mesajlar = {
+              "auth/popup-closed-by-user": "",
+              "auth/cancelled-popup-request": "",
+              "auth/popup-blocked": "Açılır pencere engellendi. Tarayıcıda bu siteye açılır pencere izni verip tekrar dene.",
+              "auth/network-request-failed": "İnternet bağlantısı gerekli.",
+              "auth/unauthorized-domain": "Bu adres Firebase'de izinli değil (Firebase Console → Authentication → Settings → Authorized domains).",
+              "auth/operation-not-allowed": "Google ile giriş Firebase'de açık değil (Firebase Console → Authentication → Sign-in method → Google)."
+            };
+            const mesaj = kod in mesajlar ? mesajlar[kod] : "Giriş yapılamadı. Biraz sonra tekrar dene.";
+            hesapDurumYaz(mesaj, !!mesaj);
+          })
+          .finally(() => { dugme.disabled = false; });
+      };
+
+      // Firebase hazırsa pencereyi HEMEN aç (telefonda dokunuşla aynı anda açılmazsa engellenir)
+      if (firebase) { girisYap(); return; }
+      dugme.disabled = true;
+      hesapDurumYaz("Hazırlanıyor…");
+      firebaseYukle()
+        .then(girisYap)
+        .catch(() => { dugme.disabled = false; hesapDurumYaz("İnternet bağlantısı gerekli.", true); });
+    });
+
+    // "Çıkış yap" (sadece Google oturumu kapanır; telefondaki veriler yerinde kalır)
+    hesapEl("cikisYap").addEventListener("click", function () {
+      if (!firebase) return;
+      // Gönderilmemiş ortak kayıt varsa uyar: çıkınca telefondaki ortak cüzdan kopyası silinir
+      if (ortak.bekleyenVar && !confirm("İnternet gelince gönderilecek ortak harcamaların var.\n" +
+          "Şimdi çıkarsan bunlar gönderilmeden silinir. Yine de çıkılsın mı?")) return;
+      ortakTemizle()
+        .then(() => firebase.f.signOut(firebase.auth))
+        .then(() => geriAlGoster("✓ Çıkış yapıldı. Kişisel verilerin bu telefonda duruyor.", null))
+        .catch(() => hesapDurumYaz("Çıkış yapılamadı. İnternet bağlantını kontrol et.", true));
+    });
+
+    // ---------- HESABI VE BULUT VERİLERİNİ SİL ----------
+    // Sırayla: (1) üye olduğum her cüzdanda eklediğim kayıtları sil, (2) cüzdandan çık
+    // (adımı da sil; tek üye bensem cüzdanı ve davet kodunu tamamen sil), (3) Firebase hesabını sil.
+    // Telefondaki kişisel bütçe verilerine (localStorage) DOKUNULMAZ.
+    async function bulutVerileriniSil() {
+      const { db, ff } = await firestoreYukle();
+      const uid = firebase.auth.currentUser.uid;
+      ortakDinlemeyiBirak();
+      await ff.waitForPendingWrites(db); // gönderilmeyi bekleyen kayıt kalmasın
+      const cuzdanlar = await ff.getDocs(ff.query(ff.collection(db, "cuzdanlar"), ff.where("uyeler", "array-contains", uid)));
+      for (const c of cuzdanlar.docs) {
+        const kayitlar = await ff.getDocs(ff.query(ff.collection(db, "cuzdanlar", c.id, "harcamalar"), ff.where("ekleyen", "==", uid)));
+        for (let i = 0; i < kayitlar.docs.length; i += 400) { // toplu yazma sınırı 500
+          const toplu = ff.writeBatch(db);
+          kayitlar.docs.slice(i, i + 400).forEach(d => toplu.delete(d.ref));
+          await toplu.commit();
+        }
+        const v = c.data();
+        if (v.uyeler.length === 1) {
+          const toplu = ff.writeBatch(db);
+          toplu.delete(ff.doc(db, "davetler", v.davetKodu));
+          toplu.delete(c.ref);
+          await toplu.commit();
+        } else {
+          await ff.updateDoc(c.ref, { uyeler: ff.arrayRemove(uid), ["uyeAdlari." + uid]: ff.deleteField() });
+        }
+      }
+      ortak.cuzdanlar = []; ortak.harcamalar = [];
+      ortakCiz();
+    }
+
+    // Firebase hesabı silinince: telefondaki ortak cüzdan kopyasını ve ortak ayarlarını temizle
+    function hesapSilindi() {
+      hesapEl("hesapSilTekrarGiris").style.display = "none";
+      ortakTemizle();
+      try { [ORTAK_SECILI, GIZLILIK_ONAY, GIRIS_ISARETI].forEach(k => localStorage.removeItem(k)); } catch (e) {}
+      gizlilikOnay = null; ortak.seciliId = null; gizlilikCiz();
+      hesapDurumYaz("");
+      geriAlGoster("✓ Hesabın ve bulut verilerin silindi. Kişisel verilerin bu telefonda duruyor.", null);
+    }
+
+    function hesapSilmeHatasi(hata) {
+      const kod = hata && hata.code;
+      if (kod === "auth/requires-recent-login") {
+        // Güvenlik gereği yakın zamanda giriş yapılmış olmalı → tekrar giriş iste
+        hesapEl("hesapSilTekrarGiris").style.display = "";
+        hesapDurumYaz("Bulut verilerin silindi. Güvenlik için tekrar giriş yapıp hesabı silmeyi bitir.", true);
+      } else if (kod === "auth/user-mismatch") {
+        hesapDurumYaz("Aynı Google hesabıyla giriş yapmalısın.", true);
+      } else if (kod === "auth/popup-closed-by-user" || kod === "auth/cancelled-popup-request") {
+        hesapDurumYaz("Giriş penceresi kapatıldı; hesap henüz silinmedi.", true);
+      } else if (kod === "auth/popup-blocked") {
+        hesapDurumYaz("Açılır pencere engellendi. Bu siteye açılır pencere izni verip tekrar dene.", true);
+      } else {
+        hesapDurumYaz("Silinemedi. İnternet bağlantını kontrol edip tekrar dene.", true);
+        if (ortak.db && ortak.uid) ortakCuzdanlariDinle(); // yarıda kaldıysa ortak sekmesi çalışmaya devam etsin
+      }
+    }
+
+    hesapEl("hesapSil").addEventListener("click", function () {
+      if (!firebase || !firebase.auth.currentUser) return;
+      if (!navigator.onLine) { hesapDurumYaz("İnternet bağlantısı gerekli.", true); return; }
+      if (!confirm("Hesabın ve bulut verilerin silinsin mi?\n\n" +
+          "• Üye olduğun tüm ortak cüzdanlardan çıkarılırsın\n" +
+          "• Eklediğin ortak harcamalar ve “borç ödendi” kayıtları herkes için silinir\n" +
+          "• CebimeGetir hesabın silinir (Google hesabın silinmez)\n\n" +
+          "Bu telefondaki kişisel bütçe verilerin SİLİNMEZ.")) return;
+      if (!confirm("Bu işlem geri alınamaz. Emin misin?")) return;
+      const dugme = this;
+      dugme.disabled = true;
+      hesapDurumYaz("Bulut verilerin siliniyor…");
+      bulutVerileriniSil()
+        .then(() => firebase.f.deleteUser(firebase.auth.currentUser))
+        .then(hesapSilindi)
+        .catch(hesapSilmeHatasi)
+        .finally(() => { dugme.disabled = false; });
+    });
+
+    // "Tekrar giriş yap ve silmeyi bitir": pencere dokunuşla hemen açılsın (yoksa engellenir)
+    hesapEl("hesapSilTekrarGiris").addEventListener("click", function () {
+      const { auth, f } = firebase;
+      if (!auth.currentUser) return;
+      const dugme = this;
+      dugme.disabled = true;
+      f.reauthenticateWithPopup(auth.currentUser, new f.GoogleAuthProvider())
+        .then(() => { hesapDurumYaz("Hesap siliniyor…"); return f.deleteUser(auth.currentUser); })
+        .then(hesapSilindi)
+        .catch(hesapSilmeHatasi)
+        .finally(() => { dugme.disabled = false; });
+    });
+
+    // ---------- ORTAK CÜZDAN (Firestore; sadece giriş yapan kullanıcılar) ----------
+    // Veri modeli (kurallar: firestore.rules):
+    //   cuzdanlar/{id}            ad, uyeler[uid], uyeAdlari{uid: ad}, davetKodu, olusturan, olusturma
+    //   cuzdanlar/{id}/harcamalar tur "harcama": tutarKurus, aciklama, kategori, tarih, odeyen, paylasanlar, ekleyen
+    //                             tur "odeme"  : tutarKurus, kimden, kime, tarih, ekleyen  ("borç ödendi" kaydı)
+    //   davetler/{kod}            cuzdanId (8 karakterli koddan cüzdanı bulmak için; listelenemez)
+    // Tutarlar kuruş olarak (tam sayı) saklanır; böylece bölüşürken küsurat hatası olmaz.
+    // Kişisel bütçe verilerine (localStorage) bu bölüm hiç dokunmaz.
+    const ORTAK_KATEGORILER = ["Market", "Yemek", "Kira", "Fatura", "Ulaşım", "Eğlence", "Tatil", "Diğer"];
+    const ORTAK_SECILI = "ortakSeciliCuzdan"; // hangi cüzdanın açık olduğu (sadece ekran tercihi)
+    let ortak = {
+      db: null, ff: null, yukleniyor: null,
+      uid: null, ad: "",
+      cuzdanlar: [], seciliId: hafizadanOku(ORTAK_SECILI, null),
+      harcamalar: [], harcamaCuzdanId: null,
+      bekleyenVar: false, sunucudanMi: false,
+      dinleCuzdan: null, dinleHarcama: null
+    };
+    const oEl = id => document.getElementById(id);
+
+    // Gizlilik onayı: bu telefonda hatırlanır ({ tarih: "gg.aa.yyyy" }). Onaysız cüzdan oluşturulamaz/katılınamaz.
+    const GIZLILIK_ONAY = "ortakGizlilikOnay";
+    let gizlilikOnay = hafizadanOku(GIZLILIK_ONAY, null);
+
+    // Aynı metin iki yerde: Ortak sekmesindeki bilgilendirme ve Ayarlar → Gizlilik
+    document.querySelectorAll(".gizlilik-yer").forEach(function (yer) {
+      yer.appendChild(document.getElementById("gizlilikMetni").content.cloneNode(true));
+    });
+
+    function gizlilikCiz() {
+      const onayli = !!gizlilikOnay;
+      oEl("ortakGizlilik").style.display = onayli ? "none" : "";
+      oEl("gizlilikOnayKutusu").checked = false;
+      oEl("ortakOnayGerekli").style.display = onayli ? "none" : "";
+      oEl("oOlustur").disabled = !onayli;
+      oEl("oKatil").disabled = !onayli;
+      oEl("gizlilikDurum").textContent = onayli
+        ? `✓ Bu telefonda ${gizlilikOnay.tarih || ""} tarihinde onayladın.`
+        : "Ortak cüzdan kullanmadan önce Ortak sekmesinde onaylaman istenir.";
+    }
+
+    oEl("gizlilikOnayKutusu").addEventListener("change", function () {
+      if (!this.checked) return;
+      gizlilikOnay = { tarih: bugunYazi };
+      try { localStorage.setItem(GIZLILIK_ONAY, JSON.stringify(gizlilikOnay)); } catch (e) {}
+      gizlilikCiz();
+      geriAlGoster("✓ Onaylandı. Artık cüzdan oluşturabilir ya da katılabilirsin.", null);
+    });
+    gizlilikCiz();
+
+    // Onay yoksa işlemi durdur ve bilgilendirmeyi göster
+    function gizlilikOnayiGerekli() {
+      if (gizlilikOnay) return false;
+      gizlilikCiz();
+      oEl("ortakGizlilik").scrollIntoView({ behavior: "smooth", block: "start" });
+      ortakDurumYaz("Önce gizlilik bilgilendirmesini okuyup onayla.", true);
+      return true;
+    }
+
+    function ortakDurumYaz(mesaj, hataMi) {
+      const p = oEl("ortakDurum");
+      p.textContent = mesaj || "";
+      p.classList.toggle("hata", !!hataMi);
+    }
+
+    // Firestore'u yükler; internetsizken de çalışsın diye kalıcı yerel önbellekle (offline persistence)
+    function firestoreYukle() {
+      if (ortak.db) return Promise.resolve(ortak);
+      if (ortak.yukleniyor) return ortak.yukleniyor;
+      ortak.yukleniyor = firebaseYukle()
+        .then(fb => import(FIREBASE_KOK + "firebase-firestore.js").then(function (ff) {
+          let db;
+          try {
+            db = ff.initializeFirestore(fb.uygulama, {
+              localCache: ff.persistentLocalCache({ tabManager: ff.persistentMultipleTabManager() })
+            });
+          } catch (e) {
+            db = ff.getFirestore(fb.uygulama); // zaten başlatılmışsa
+          }
+          ortak.db = db; ortak.ff = ff;
+          return ortak;
+        }))
+        .catch(function (hata) { ortak.yukleniyor = null; throw hata; });
+      return ortak.yukleniyor;
+    }
+
+    // Oturum açılınca/kapanınca çağrılır (hesabiGoster içinden)
+    function ortakOturum(kullanici) {
+      oEl("ortakSekmeDugme").style.display = kullanici ? "" : "none";
+      if (!kullanici) {
+        ortakDinlemeyiBirak();
+        ortak.uid = null; ortak.cuzdanlar = []; ortak.harcamalar = [];
+        if (document.getElementById("sekme-ortak").classList.contains("aktif")) sekmeAc("bugun");
+        return;
+      }
+      if (ortak.uid === kullanici.uid) return;
+      ortak.uid = kullanici.uid;
+      ortak.ad = (kullanici.displayName || kullaniciAdi || "Üye").slice(0, 40);
+      ortakDurumYaz("Ortak cüzdanlar yükleniyor…");
+      firestoreYukle()
+        .then(ortakCuzdanlariDinle)
+        .catch(() => ortakDurumYaz("Ortak cüzdan için internet bağlantısı gerekli.", true));
+    }
+
+    function ortakDinlemeyiBirak() {
+      if (ortak.dinleCuzdan) { ortak.dinleCuzdan(); ortak.dinleCuzdan = null; }
+      if (ortak.dinleHarcama) { ortak.dinleHarcama(); ortak.dinleHarcama = null; }
+      ortak.harcamaCuzdanId = null;
+    }
+
+    // Çıkışta: dinlemeyi bırak, Firestore'u kapat ve telefondaki ortak cüzdan kopyasını sil
+    function ortakTemizle() {
+      ortakDinlemeyiBirak();
+      if (!ortak.db) return Promise.resolve();
+      const { db, ff } = ortak;
+      ortak.db = null; ortak.ff = null; ortak.yukleniyor = null; ortak.bekleyenVar = false;
+      return ff.terminate(db)
+        .then(() => ff.clearIndexedDbPersistence(db))
+        .catch(() => {}); // silinemese de çıkış devam etsin
+    }
+
+    // Üyesi olduğum cüzdanları canlı dinle
+    function ortakCuzdanlariDinle() {
+      const { db, ff } = ortak;
+      if (ortak.dinleCuzdan) ortak.dinleCuzdan();
+      const sorgu = ff.query(ff.collection(db, "cuzdanlar"), ff.where("uyeler", "array-contains", ortak.uid));
+      ortak.dinleCuzdan = ff.onSnapshot(sorgu, function (snap) {
+        ortak.cuzdanlar = snap.docs.map(d => Object.assign({ id: d.id }, d.data()))
+          .sort((a, b) => String(a.ad).localeCompare(String(b.ad), "tr"));
+        if (!ortak.cuzdanlar.some(c => c.id === ortak.seciliId)) {
+          ortak.seciliId = ortak.cuzdanlar.length ? ortak.cuzdanlar[0].id : null;
+        }
+        ortakDurumYaz("");
+        ortakHarcamalariDinle();
+        ortakCiz();
+      }, function () {
+        ortakDurumYaz("Ortak cüzdanlar yüklenemedi. İnternet bağlantını kontrol et.", true);
+      });
+    }
+
+    // Seçili cüzdanın harcamalarını canlı dinle (internetsiz eklenenler "bekliyor" olarak görünür)
+    function ortakHarcamalariDinle() {
+      const id = ortak.seciliId;
+      if (id === ortak.harcamaCuzdanId) return;
+      if (ortak.dinleHarcama) { ortak.dinleHarcama(); ortak.dinleHarcama = null; }
+      ortak.harcamaCuzdanId = id;
+      ortak.harcamalar = [];
+      if (!id) return;
+      const { db, ff } = ortak;
+      ortak.dinleHarcama = ff.onSnapshot(ff.collection(db, "cuzdanlar", id, "harcamalar"), { includeMetadataChanges: true },
+        function (snap) {
+          if (ortak.harcamaCuzdanId !== id) return;
+          ortak.harcamalar = snap.docs.map(d => Object.assign(
+            { id: d.id, bekliyor: d.metadata.hasPendingWrites },
+            d.data({ serverTimestamps: "estimate" })));
+          ortak.bekleyenVar = snap.metadata.hasPendingWrites;
+          ortak.sunucudanMi = !snap.metadata.fromCache;
+          ortakCiz();
+        },
+        function () { /* cüzdandan ayrılınca okuma izni biter; sessizce geç */ });
+    }
+
+    const ortakSecili = () => ortak.cuzdanlar.find(c => c.id === ortak.seciliId) || null;
+    const kurusYaz = k => paraYaz(k / 100);
+    // Ayrılma eki: Mert → Mert'ten, Ayşe → Ayşe'den, Ali → Ali'den, Can → Can'dan
+    function denEki(ad) {
+      const kucuk = ad.trim().toLocaleLowerCase("tr-TR");
+      const sesliler = "aeıioöuü";
+      let sonSesli = "e";
+      for (const harf of kucuk) if (sesliler.includes(harf)) sonSesli = harf;
+      const unlu = "aıou".includes(sonSesli) ? "a" : "e";
+      const sert = "fstkçşhp".includes(kucuk.slice(-1)); // fıstıkçı şahap → t
+      return ad.trim() + "'" + (sert ? "t" : "d") + unlu + "n";
+    }
+
+    function uyeAdi(cuzdan, uid) {
+      if (uid === ortak.uid) return "Sen";
+      return (cuzdan.uyeAdlari && cuzdan.uyeAdlari[uid]) || "Eski üye";
+    }
+
+    // Herkesin net durumu (kuruş): artı = alacaklı, eksi = borçlu.
+    // Harcama eşit bölünür; bölünemeyen kuruşlar sıradaki ilk kişilere birer birer eklenir.
+    function ortakBakiyeler(harcamalar) {
+      const net = {};
+      const ekle = (u, k) => { net[u] = (net[u] || 0) + k; };
+      harcamalar.forEach(function (h) {
+        if (h.tur === "harcama" && Array.isArray(h.paylasanlar) && h.paylasanlar.length) {
+          const kisiler = [...h.paylasanlar].sort();
+          const pay = Math.floor(h.tutarKurus / kisiler.length);
+          const artan = h.tutarKurus - pay * kisiler.length;
+          kisiler.forEach((u, i) => ekle(u, -(pay + (i < artan ? 1 : 0))));
+          ekle(h.odeyen, h.tutarKurus);
+        } else if (h.tur === "odeme") {
+          ekle(h.kimden, h.tutarKurus); // borcunu ödedi → borcu azaldı
+          ekle(h.kime, -h.tutarKurus);  // parasını aldı → alacağı azaldı
+        }
+      });
+      return net;
+    }
+
+    // Net durumları en az sayıda "kim → kime" ödemesine çevirir
+    function borclariSadelestir(net) {
+      const borclular = [], alacaklilar = [];
+      Object.entries(net).forEach(([u, k]) => {
+        if (k < 0) borclular.push({ u, k: -k });
+        else if (k > 0) alacaklilar.push({ u, k });
+      });
+      borclular.sort((a, b) => b.k - a.k);
+      alacaklilar.sort((a, b) => b.k - a.k);
+      const sonuc = [];
+      let i = 0, j = 0;
+      while (i < borclular.length && j < alacaklilar.length) {
+        const k = Math.min(borclular[i].k, alacaklilar[j].k);
+        if (k > 0) sonuc.push({ kimden: borclular[i].u, kime: alacaklilar[j].u, kurus: k });
+        borclular[i].k -= k; alacaklilar[j].k -= k;
+        if (borclular[i].k === 0) i++;
+        if (alacaklilar[j].k === 0) j++;
+      }
+      return sonuc;
+    }
+
+    // Ortak sekmesini çizer. Başkalarından gelen her yazı (ad, açıklama) textContent ile yazılır.
+    function ortakCiz() {
+      if (!ortak.uid) return;
+      const c = ortakSecili();
+      oEl("ortakBos").style.display = c ? "none" : "";
+      oEl("ortakCuzdanAlani").style.display = c ? "" : "none";
+      if (!c) return;
+
+      // Cüzdan seçimi (birden fazla cüzdan varsa)
+      const sec = oEl("ortakCuzdanSec");
+      sec.style.display = ortak.cuzdanlar.length > 1 ? "" : "none";
+      sec.innerHTML = "";
+      ortak.cuzdanlar.forEach(function (x) {
+        const o = document.createElement("option");
+        o.value = x.id; o.textContent = x.ad; o.selected = x.id === c.id;
+        sec.appendChild(o);
+      });
+      oEl("ortakCuzdanAdi").textContent = "👭 " + c.ad;
+      oEl("ortakDavetKodu").textContent = davetKoduGoster(c.davetKodu);
+
+      // Üyeler
+      const uyeAlani = oEl("ortakUyeler");
+      uyeAlani.innerHTML = "";
+      c.uyeler.forEach(function (u) {
+        const s = document.createElement("span");
+        s.textContent = u === ortak.uid ? `${c.uyeAdlari[u] || "Sen"} (sen)` : (c.uyeAdlari[u] || "Üye");
+        if (u === ortak.uid) s.className = "ben";
+        uyeAlani.appendChild(s);
+      });
+      const sayi = document.createElement("span");
+      sayi.textContent = `${c.uyeler.length}/6 kişi`;
+      uyeAlani.appendChild(sayi);
+
+      // Senkron durumu
+      oEl("ortakSenkron").textContent = ortak.bekleyenVar
+        ? "⏳ Bazı kayıtlar henüz gönderilmedi; internet gelince otomatik gönderilecek."
+        : (!navigator.onLine ? "📴 İnternet yok. Eklediklerin kaydedilir, bağlantı gelince gönderilir." : "");
+
+      // Kim kime borçlu
+      const net = ortakBakiyeler(ortak.harcamalar);
+      const borclar = borclariSadelestir(net);
+      const borcAlani = oEl("ortakBorclar");
+      borcAlani.innerHTML = "";
+      if (borclar.length === 0) {
+        borcAlani.innerHTML = "<p class='bos-mesaj' style='margin:4px 0'>Herkes ödeşmiş görünüyor 🎉</p>";
+      }
+      borclar.forEach(function (b) {
+        const satir = document.createElement("div");
+        satir.className = "borc-satir";
+        satir.innerHTML = `<span class="kim"></span><span class="tutar"></span>`;
+        satir.querySelector(".kim").textContent = `${uyeAdi(c, b.kimden)} → ${uyeAdi(c, b.kime)}`;
+        satir.querySelector(".tutar").textContent = kurusYaz(b.kurus);
+        borcAlani.appendChild(satir);
+        // "Ödendi" işaretini SADECE alacaklı koyabilir (parayı aldığını o onaylar; ikisi de hâlâ üyeyse)
+        const ikisiUye = c.uyeler.includes(b.kimden) && c.uyeler.includes(b.kime);
+        if (b.kime === ortak.uid && ikisiUye) {
+          const d = document.createElement("button");
+          d.type = "button"; d.className = "ikincil"; d.textContent = "Ödendi ✓";
+          d.addEventListener("click", () => borcOdendi(c, b));
+          satir.appendChild(d);
+        } else if (b.kimden === ortak.uid && ikisiUye) {
+          // Borçluya: alacaklıdan onay istemesini söyle
+          const not = document.createElement("p");
+          not.className = "borc-not";
+          not.textContent = `Ödeme yapınca ${denEki(uyeAdi(c, b.kime))} onaylamasını iste.`;
+          borcAlani.appendChild(not);
+        }
+      });
+
+      // Form: kim ödedi + bölüşüm bilgisi
+      const odeyen = oEl("oOdeyen");
+      const eskiOdeyen = odeyen.value;
+      odeyen.innerHTML = "";
+      c.uyeler.forEach(function (u) {
+        const o = document.createElement("option");
+        o.value = u; o.textContent = u === ortak.uid ? "Ben" : (c.uyeAdlari[u] || "Üye");
+        odeyen.appendChild(o);
+      });
+      odeyen.value = c.uyeler.includes(eskiOdeyen) ? eskiOdeyen : ortak.uid;
+      ortakBolusumYaz();
+
+      // Harcama listesi: en yeni tarih üstte
+      const liste = oEl("ortakListe");
+      liste.innerHTML = "";
+      const sirali = [...ortak.harcamalar].sort((a, b) =>
+        (tarihOku(b.tarih) - tarihOku(a.tarih)) ||
+        ((b.olusturma ? b.olusturma.toMillis() : 0) - (a.olusturma ? a.olusturma.toMillis() : 0)));
+      if (sirali.length === 0) liste.innerHTML = "<p class='bos-mesaj' style='margin:4px 0'>Henüz ortak harcama yok.</p>";
+      sirali.slice(0, 100).forEach(function (h) {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="bilgi"><strong></strong><small></small></div><span class="tutar"></span>`;
+        if (h.tur === "odeme") {
+          li.querySelector("strong").textContent = `💸 ${uyeAdi(c, h.kimden)} → ${uyeAdi(c, h.kime)}`;
+          li.querySelector("small").textContent = `Borç ödendi · ${h.tarih}`;
+        } else {
+          li.querySelector("strong").textContent = h.aciklama || h.kategori;
+          li.querySelector("small").textContent =
+            `${h.kategori} · ${uyeAdi(c, h.odeyen)} ödedi · ${h.paylasanlar.length} kişiye bölündü · ${h.tarih}`;
+        }
+        li.querySelector(".tutar").textContent = kurusYaz(h.tutarKurus);
+        if (h.bekliyor) {
+          const r = document.createElement("span");
+          r.className = "bekliyor-rozet"; r.textContent = " ⏳ gönderilecek";
+          li.querySelector("small").appendChild(r);
+        }
+        // Silme: sadece ekleyen kişi
+        if (h.ekleyen === ortak.uid) {
+          const sil = document.createElement("button");
+          sil.type = "button"; sil.className = "sil"; sil.title = "Sil"; sil.textContent = "✕";
+          sil.addEventListener("click", () => ortakKayitSil(c, h));
+          li.appendChild(sil);
+        }
+        liste.appendChild(li);
+      });
+    }
+
+    function ortakBolusumYaz() {
+      const c = ortakSecili();
+      if (!c) return;
+      const tutar = parseFloat(oEl("oTutar").value);
+      const n = c.uyeler.length;
+      oEl("oBolusum").textContent = tutar > 0
+        ? `${n} kişiye eşit bölünür: kişi başı yaklaşık ${paraYaz(tutar / n)}`
+        : `Tutar, cüzdandaki ${n} kişiye eşit bölünür.`;
+    }
+    oEl("oTutar").addEventListener("input", ortakBolusumYaz);
+
+    // Firestore hata kodunu anlaşılır mesaja çevirir
+    function ortakHataMesaji(hata, varsayilan) {
+      const kod = hata && hata.code;
+      if (kod === "permission-denied") return varsayilan || "Bu işlem için iznin yok.";
+      if (kod === "unavailable") return "İnternet bağlantısı gerekli.";
+      return varsayilan || "Bir sorun oldu. Biraz sonra tekrar dene.";
+    }
+
+    // Yazma işlemi: internetsizken de anında ekranda görünür (yerel önbellek),
+    // bağlantı gelince Firestore kendisi gönderir. Sunucu reddederse kullanıcıya söyle.
+    function ortakYaz(soz, redMesaji) {
+      soz.catch(h => ortakDurumYaz(ortakHataMesaji(h, redMesaji), true));
+      ortakCiz();
+    }
+
+    // (3) Ortak harcama ekle
+    oEl("oEkle").addEventListener("click", function () {
+      const c = ortakSecili();
+      if (!c || !ortak.db) return;
+      const tutar = parseFloat(oEl("oTutar").value);
+      if (!(tutar > 0)) { oEl("oTutar").focus(); return; }
+      const tutarKurus = Math.round(tutar * 100);
+      const [yil, ay, gun] = (oEl("oTarih").value || bugun()).split("-");
+      const kategori = oEl("oKategori").value;
+      const { db, ff } = ortak;
+      const veri = {
+        tur: "harcama",
+        tutarKurus,
+        aciklama: oEl("oAciklama").value.trim().slice(0, 80) || kategori,
+        kategori,
+        tarih: `${gun}.${ay}.${yil}`,
+        odeyen: oEl("oOdeyen").value,
+        paylasanlar: [...c.uyeler],   // eşit bölünür: şu anki tüm üyeler
+        ekleyen: ortak.uid,
+        olusturma: ff.serverTimestamp()
+      };
+      ortakYaz(ff.addDoc(ff.collection(db, "cuzdanlar", c.id, "harcamalar"), veri),
+        "Harcama kaydedilemedi (artık bu cüzdanın üyesi olmayabilirsin).");
+      oEl("oTutar").value = ""; oEl("oAciklama").value = "";
+      ortakBolusumYaz();
+      geriAlGoster(navigator.onLine ? `✓ Ortak harcama eklendi · ${kurusYaz(tutarKurus)}`
+                                    : "✓ Kaydedildi, internet gelince gönderilecek", null);
+    });
+
+    // (4) Borç ödendi işareti: ayrı bir "odeme" kaydı. Sadece alacaklı ekleyebilir (kurallar da zorlar).
+    function borcOdendi(c, b) {
+      if (!confirm(`${uyeAdi(c, b.kimden)} → ${uyeAdi(c, b.kime)} · ${kurusYaz(b.kurus)}\nÖdendi olarak işaretlensin mi?`)) return;
+      const { db, ff } = ortak;
+      ortakYaz(ff.addDoc(ff.collection(db, "cuzdanlar", c.id, "harcamalar"), {
+        tur: "odeme", tutarKurus: b.kurus, kimden: b.kimden, kime: b.kime,
+        tarih: bugunYazi, ekleyen: ortak.uid, olusturma: ff.serverTimestamp()
+      }), "İşaretlenemedi.");
+      geriAlGoster("✓ Borç ödendi olarak işaretlendi", null);
+    }
+
+    function ortakKayitSil(c, h) {
+      if (!confirm("Bu kayıt herkes için silinsin mi?")) return;
+      const { db, ff } = ortak;
+      ortakYaz(ff.deleteDoc(ff.doc(db, "cuzdanlar", c.id, "harcamalar", h.id)), "Silinemedi.");
+    }
+
+    // Davet kodu: 8 karakter, karıştırılan 0/O, 1/I/L yok (31 harf+rakam → ~850 milyar ihtimal).
+    // Tiresiz saklanır ("K7M2QX9P"), ekranda ortası tireli gösterilir ("K7M2-QX9P").
+    const DAVET_ALFABE = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    const DAVET_DESEN = /^[A-HJ-KM-NP-Z2-9]{8}$/;
+    function davetKoduUret() {
+      let kod = "";
+      const s = new Uint8Array(16);
+      while (kod.length < 8) {
+        crypto.getRandomValues(s);
+        for (const b of s) {
+          // 248 = 31×8: üstündeki değerler atılır, böylece her karakter eşit olasılıklı
+          if (b < 248 && kod.length < 8) kod += DAVET_ALFABE[b % 31];
+        }
+      }
+      return kod;
+    }
+    function davetKoduGoster(kod) { return kod ? kod.slice(0, 4) + "-" + kod.slice(4) : ""; }
+    // Girilen kodu temizler: küçük harf → büyük, tire/boşluk atılır
+    function davetKoduTemizle(yazi) { return (yazi || "").toLocaleUpperCase("en-US").replace(/[\s-]/g, ""); }
+
+    // Oluşturma / katılma / ayrılma sunucuyla konuşmalı: internet şart
+    function internetGerekli() {
+      if (navigator.onLine) return false;
+      ortakDurumYaz("Bu işlem için internet bağlantısı gerekli.", true);
+      return true;
+    }
+
+    // (1) Ortak cüzdan oluştur: cüzdan + davet kodu aynı anda (kod çakışırsa yeni kodla tekrar dene)
+    oEl("oOlustur").addEventListener("click", function () {
+      const ad = oEl("oCuzdanAd").value.trim().slice(0, 40);
+      if (gizlilikOnayiGerekli()) return;
+      if (!ad) { oEl("oCuzdanAd").focus(); return; }
+      if (!ortak.db || internetGerekli()) return;
+      const dugme = this;
+      const { db, ff } = ortak;
+      dugme.disabled = true;
+      ortakDurumYaz("Cüzdan oluşturuluyor…");
+      const dene = function (kalanDeneme) {
+        const kod = davetKoduUret();
+        const ref = ff.doc(ff.collection(db, "cuzdanlar"));
+        const toplu = ff.writeBatch(db);
+        toplu.set(ref, {
+          ad, uyeler: [ortak.uid], uyeAdlari: { [ortak.uid]: ortak.ad },
+          davetKodu: kod, olusturan: ortak.uid, olusturma: ff.serverTimestamp()
+        });
+        toplu.set(ff.doc(db, "davetler", kod), { cuzdanId: ref.id });
+        return toplu.commit().then(() => ref.id, function (hata) {
+          // Kod başka cüzdanda kullanılıyorsa izin reddedilir → yeni kodla tekrar
+          if (hata && hata.code === "permission-denied" && kalanDeneme > 0) return dene(kalanDeneme - 1);
+          throw hata;
+        });
+      };
+      dene(4)
+        .then(function (id) {
+          ortak.seciliId = id;
+          try { localStorage.setItem(ORTAK_SECILI, JSON.stringify(id)); } catch (e) {}
+          oEl("oCuzdanAd").value = "";
+          ortakDurumYaz("");
+          geriAlGoster("✓ Cüzdan oluşturuldu. Davet kodunu arkadaşlarınla paylaş!", null);
+        })
+        .catch(h => ortakDurumYaz(ortakHataMesaji(h, "Cüzdan oluşturulamadı."), true))
+        .finally(() => { dugme.disabled = false; });
+    });
+
+    // (2) Davet koduyla katıl: kod → cüzdan kimliği → kendini üye olarak ekle (kod kurallarda tekrar kontrol edilir)
+    oEl("oKatil").addEventListener("click", function () {
+      if (gizlilikOnayiGerekli()) return;
+      const kod = davetKoduTemizle(oEl("oKod").value);
+      if (!DAVET_DESEN.test(kod)) { ortakDurumYaz("Davet kodu 8 karakter olmalı (ör. K7M2-QX9P).", true); return; }
+      if (!ortak.db || internetGerekli()) return;
+      const dugme = this;
+      const { db, ff } = ortak;
+      dugme.disabled = true;
+      ortakDurumYaz("Katılınıyor…");
+      ff.getDoc(ff.doc(db, "davetler", kod))
+        .then(function (davet) {
+          if (!davet.exists()) throw { code: "kod-yok" };
+          const id = davet.data().cuzdanId;
+          if (ortak.cuzdanlar.some(c => c.id === id)) throw { code: "zaten-uye", id };
+          return ff.updateDoc(ff.doc(db, "cuzdanlar", id), {
+            uyeler: ff.arrayUnion(ortak.uid),
+            ["uyeAdlari." + ortak.uid]: ortak.ad,
+            katilimKodu: kod
+          }).then(() => id);
+        })
+        .then(function (id) {
+          ortak.seciliId = id;
+          try { localStorage.setItem(ORTAK_SECILI, JSON.stringify(id)); } catch (e) {}
+          oEl("oKod").value = "";
+          ortakDurumYaz("");
+          geriAlGoster("✓ Cüzdana katıldın", null);
+        })
+        .catch(function (h) {
+          const kod2 = h && h.code;
+          if (kod2 === "kod-yok") ortakDurumYaz("Bu davet koduyla bir cüzdan bulunamadı.", true);
+          else if (kod2 === "zaten-uye") { ortak.seciliId = h.id; ortakCiz(); ortakDurumYaz("Zaten bu cüzdandasın."); }
+          else ortakDurumYaz(ortakHataMesaji(h, "Katılamadın: cüzdan dolu (6 kişi) ya da artık kullanılmıyor."), true);
+        })
+        .finally(() => { dugme.disabled = false; });
+    });
+
+    // (5) Cüzdandan ayrıl
+    oEl("ortakAyril").addEventListener("click", function () {
+      const c = ortakSecili();
+      if (!c || internetGerekli()) return;
+      const benimNet = ortakBakiyeler(ortak.harcamalar)[ortak.uid] || 0;
+      const uyari = benimNet < 0 ? `\n\nDikkat: ${kurusYaz(-benimNet)} borcun görünüyor.`
+                  : benimNet > 0 ? `\n\nDikkat: ${kurusYaz(benimNet)} alacağın görünüyor.` : "";
+      if (!confirm(`"${c.ad}" cüzdanından ayrılmak istiyor musun?${uyari}\n\nAyrılınca bu cüzdanı göremezsin; tekrar katılmak için davet kodu gerekir.`)) return;
+      const { db, ff } = ortak;
+      ff.updateDoc(ff.doc(db, "cuzdanlar", c.id), { uyeler: ff.arrayRemove(ortak.uid) })
+        .then(() => geriAlGoster("✓ Cüzdandan ayrıldın", null))
+        .catch(h => ortakDurumYaz(ortakHataMesaji(h, "Ayrılamadın."), true));
+    });
+
+    oEl("ortakCuzdanSec").addEventListener("change", function () {
+      ortak.seciliId = this.value;
+      try { localStorage.setItem(ORTAK_SECILI, JSON.stringify(this.value)); } catch (e) {}
+      ortakHarcamalariDinle();
+      ortakCiz();
+    });
+
+    // Davet kodunu paylaş (telefonda paylaş menüsü, yoksa panoya kopyala)
+    oEl("ortakKodPaylas").addEventListener("click", function () {
+      const c = ortakSecili();
+      if (!c) return;
+      const metin = `CebimeGetir'de "${c.ad}" ortak cüzdanına katıl! Davet kodu: ${davetKoduGoster(c.davetKodu)}`;
+      if (navigator.share) { navigator.share({ text: metin }).catch(() => {}); return; }
+      (navigator.clipboard ? navigator.clipboard.writeText(metin) : Promise.reject())
+        .then(() => geriAlGoster("✓ Davet kodu kopyalandı", null))
+        .catch(() => geriAlGoster("Davet kodu: " + davetKoduGoster(c.davetKodu), null));
+    });
+
+    // Form başlangıç değerleri
+    oEl("oKategori").innerHTML = ORTAK_KATEGORILER.map(k => `<option>${k}</option>`).join("");
+    oEl("oTarih").value = bugun();
+    window.addEventListener("online", () => ortakCiz());
+    window.addEventListener("offline", () => ortakCiz());
+
+    // İnternet gidip gelince Hesap bölümünü güncelle
+    window.addEventListener("online", hesapHazirla);
+    window.addEventListener("offline", () => { if (!firebase) hesapDurumYaz("İnternet bağlantısı gerekli.", true); });
+
+    // Firebase'i ne zaman yükleyelim?
+    //  • Daha önce giriş yapıldıysa: açılışta (oturum geri gelsin, ad/fotoğraf görünsün)
+    //  • Yoksa: Hesap bölümü ekranda ilk görününce (dokununca giriş penceresi hemen açılabilsin)
+    try { if (localStorage.getItem(GIRIS_ISARETI)) hesapHazirla(); } catch (e) {}
+    if ("IntersectionObserver" in window) {
+      const gozcu = new IntersectionObserver(function (girdiler) {
+        if (girdiler.some(g => g.isIntersecting)) { gozcu.disconnect(); hesapHazirla(); }
+      });
+      gozcu.observe(hesapEl("hesapPanel"));
+    }
+
     // Sayfa ilk açıldığında her şeyi hazırla
     temaUygula();
+    hizliDugmeleriCiz();
     tarihKutusu.value = bugun();
     kategorileriDoldur();
     kategorileriDoldur("tTur", "tKategori");
@@ -2609,9 +3906,10 @@
     ekraniGuncelle();
     sekmeAc("bugun"); // uygulama her zaman Bugün sekmesinde açılır
     adiUygula();
-    // Adı hiç kaydedilmemişse (ilk açılış) tanışma ekranını göster.
-    // Adı olan eski kullanıcılara sorulmaz; Ayarlar > Profil > Düzenle ile doldurabilirler.
-    if (!kullaniciAdi) tanismaAc(false);
+    // Tanışma ekranı (5 adım) henüz tamamlanmadıysa açılışta bir kez göster.
+    // "Bitir"e basınca durum kaydedilir ve bir daha çıkmaz.
+    // Eski kullanıcılarda cevaplar hazır dolu gelir (ad, "Öğrenciyim", burs günü…); verilere dokunulmaz.
+    if (!kullaniciAdi || !KATEGORI_SETLERI[durum]) tanismaAc(false);
 
     // ---------- İNTERNETSİZ ÇALIŞMA (PWA) ----------
     // sw.js dosyasını tarayıcıya tanıtır; uygulama dosyaları telefona kaydedilir

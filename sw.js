@@ -6,7 +6,7 @@
 // yeni hali kendiliğinden gelir.
 // ⚠️ Simgeleri ya da manifest.json'ı değiştirirsen aşağıdaki SURUM numarasını bir artır
 // (ör. "v1" → "v2"); böylece eski kopyalar silinir.
-const SURUM = "v1";
+const SURUM = "v4"; // v2: adı CebimeGetir oldu · v3: yeni yeşil cep + ₺ simgesi · v4: gstatic.com (Firebase) önbelleği
 const ONBELLEK = "butcem-" + SURUM;
 
 // Uygulamanın kendi dosyaları: ilk açılışta hepsi telefona indirilir
@@ -73,13 +73,18 @@ self.addEventListener("fetch", function (olay) {
     return;
   }
 
-  // b) Google yazı tipleri: telefonda varsa oradan, yoksa indirip sakla
-  if (url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com") {
+  // b) Google yazı tipleri ve gstatic.com dosyaları (Firebase giriş kütüphanesi
+  //    www.gstatic.com/firebasejs/… adresinden gelir): telefonda varsa oradan, yoksa indirip sakla.
+  //    Bu dosyaların adında sürüm numarası olduğu için içerikleri hiç değişmez; önbellekten vermek güvenli.
+  //    (Giriş isteklerinin kendisi — googleapis.com, firebaseapp.com — önbelleğe ALINMAZ.)
+  if (url.hostname === "fonts.googleapis.com" || url.hostname === "gstatic.com" || url.hostname.endsWith(".gstatic.com")) {
     olay.respondWith(
       caches.match(istek).then(function (kayitli) {
         return kayitli || fetch(istek).then(function (cevap) {
-          const kopya = cevap.clone();
-          caches.open(ONBELLEK).then(function (o) { o.put(istek, kopya); });
+          if (cevap && cevap.ok) { // sadece başarılı cevapları sakla
+            const kopya = cevap.clone();
+            caches.open(ONBELLEK).then(function (o) { o.put(istek, kopya); });
+          }
           return cevap;
         });
       })
