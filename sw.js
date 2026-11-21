@@ -6,7 +6,7 @@
 // yeni hali kendiliğinden gelir.
 // ⚠️ Simgeleri ya da manifest.json'ı değiştirirsen aşağıdaki SURUM numarasını bir artır
 // (ör. "v1" → "v2"); böylece eski kopyalar silinir.
-const SURUM = "v4"; // v2: adı CebimeGetir oldu · v3: yeni yeşil cep + ₺ simgesi · v4: gstatic.com (Firebase) önbelleği
+const SURUM = "v5"; // v2: adı CebimeGetir oldu · v3: yeni yeşil cep + ₺ simgesi · v4: gstatic.com (Firebase) önbelleği · v5: gizlilik.html
 const ONBELLEK = "butcem-" + SURUM;
 
 // Uygulamanın kendi dosyaları: ilk açılışta hepsi telefona indirilir
@@ -14,6 +14,7 @@ const DOSYALAR = [
   "./",
   "./index.html",
   "./butce.html",
+  "./gizlilik.html",
   "./manifest.json",
   "./ikon-192.png",
   "./ikon-512.png",

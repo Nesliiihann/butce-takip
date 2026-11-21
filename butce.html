@@ -525,12 +525,16 @@
     .borc-satir .tutar { font-weight: 700; white-space: nowrap; }
     .borc-satir button { flex-shrink: 0; padding: 6px 10px; font-size: 13px; }
     .borc-not { margin: -4px 0 6px; font-size: 12px; color: var(--soluk); }
+    .burs-eylem { margin-top: 8px; }
 
     /* Gizlilik bilgilendirmesi ve hesap silme */
     .gizlilik-liste { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
     .gizlilik-liste li { margin: 0 0 6px; }
     .gizlilik-onay { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-weight: 600; cursor: pointer; }
     .gizlilik-onay input { width: 22px; height: 22px; margin: 0; flex-shrink: 0; accent-color: var(--mor); }
+    .gizlilik-onay span { line-height: 1.35; }
+    .gizlilik-link { display: inline-block; margin: 2px 0 4px; color: var(--vurgu-yazi); font-weight: 600; font-size: 14px; }
+    .gizlilik-yenilendi { margin: 0 0 8px; padding: 8px 10px; border-radius: 10px; background: var(--uyari-zemin); font-size: 14px; }
     #hesapSilAlani { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--kenar); display: grid; gap: 8px; }
     .tehlike-dugme { width: 100%; color: var(--kirmizi) !important; }
     .tehlike-dugme-dolu, .tehlike-dugme-dolu:hover { width: 100%; background: var(--kirmizi); color: #fff; }
@@ -962,11 +966,23 @@
       <!-- Gizlilik bilgilendirmesi: onay verilene kadar görünür; onaysız cüzdan oluşturulamaz/katılınamaz -->
       <div class="panel gizlilik-panel" id="ortakGizlilik" style="display:none">
         <h3>🔒 Gizlilik</h3>
+        <p class="gizlilik-yenilendi" id="gizlilikYenilendi" style="display:none">
+          Gizlilik metnimiz güncellendi. Ortak cüzdanı kullanmaya devam etmek için lütfen tekrar onayla.
+        </p>
         <div class="gizlilik-yer"></div>
+        <a class="gizlilik-link" href="gizlilik.html">📄 KVKK Aydınlatma Metni ve Gizlilik Politikası’nın tamamı →</a>
         <label class="gizlilik-onay">
-          <input type="checkbox" id="gizlilikOnayKutusu">
-          <span>Okudum, kabul ediyorum</span>
+          <input type="checkbox" id="onayAydinlatma">
+          <span>Aydınlatma metnini okudum</span>
         </label>
+        <label class="gizlilik-onay">
+          <input type="checkbox" id="onayYurtdisi">
+          <span>Verilerimin yurt dışındaki (Almanya) sunuculara aktarılmasına açık rıza veriyorum</span>
+        </label>
+        <p class="limit-alt" style="margin:6px 0 0">
+          Giriş bilgilerin (ad, e-posta, fotoğraf) Google tarafından ABD’deki sunucularda da işlenebilir;
+          ayrıntılar <a href="gizlilik.html">aydınlatma metninde</a>.
+        </p>
       </div>
 
       <!-- Henüz cüzdan yokken kısa açıklama -->
@@ -1043,7 +1059,8 @@
       <ul class="gizlilik-liste">
         <li><strong>Hangi veriler buluta gider:</strong> Google hesabındaki adın, e-posta adresin ve profil
           fotoğrafın; ortak cüzdan adı, üyeler ve ortak harcamalar.</li>
-        <li><strong>Nereye:</strong> Google Firebase, Avrupa’daki sunucular (Frankfurt).</li>
+        <li><strong>Nereye:</strong> Google Firebase, Avrupa’daki sunucular (Frankfurt). Google ile giriş
+          bilgilerini Google, ABD’deki sunucularında da işleyebilir.</li>
         <li><strong>Neden:</strong> Ortak harcamaları cüzdan üyeleriyle paylaşmak ve kim kime ne kadar
           borçlu olduğunu hesaplamak için.</li>
         <li><strong>Kimler görebilir:</strong> Sadece o cüzdanın üyeleri. (Üyeler adını görür;
@@ -1116,7 +1133,12 @@
       <div class="panel gizlilik-panel">
         <h3>🔒 Gizlilik</h3>
         <div class="gizlilik-yer"></div>
+        <a class="gizlilik-link" href="gizlilik.html">📄 KVKK Aydınlatma Metni ve Gizlilik Politikası →</a>
         <p class="limit-alt" id="gizlilikDurum" style="margin:6px 0 0"></p>
+        <p class="limit-alt" style="margin:6px 0 0">
+          <strong>Rızamı geri çekmek için:</strong> Ayarlar → Hesap → “Hesabımı ve bulut verilerimi sil”.
+          Bu, bulut verilerini ve hesabını siler; telefondaki kişisel bütçe verilerine dokunmaz.
+        </p>
       </div>
 
       <!-- Kategori limitleri: sadece limit konmuş kategoriler görünür -->
@@ -1136,7 +1158,7 @@
       </div>
 
       <!-- Tekrarlayan gelir/giderler -->
-      <div class="panel">
+      <div class="panel" id="tekrarPanel">
         <h3>🔁 Tekrarlayan Gelir / Giderler</h3>
         <p class="limit-alt" style="margin:-5px 0 10px">
           Her ay aynı gün otomatik eklenir (sayfayı açtığında, zamanı gelmiş olanlar eklenir).
@@ -1534,8 +1556,9 @@
       return hangiMod === "hafta" ? haftaAdi(anahtar) : ayAdi(anahtar);
     }
 
-    const bugunYazi = new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" });
-    function simdikiDonem(hangiMod) { return donemAnahtari(bugunYazi, hangiMod); }
+    // Bugünün tarihi ("gg.aa.yyyy"). Her çağrıda yeniden hesaplanır: uygulama gece açık kalırsa ertesi gün doğru tarihi verir.
+    function bugunYazi() { return new Date().toLocaleDateString("tr-TR", { day: "2-digit", month: "2-digit", year: "numeric" }); }
+    function simdikiDonem(hangiMod) { return donemAnahtari(bugunYazi(), hangiMod); }
 
     // Bir işlem seçili döneme ait mi?
     function donemde(islem, anahtar, hangiMod) {
@@ -1707,9 +1730,15 @@
     // yoksa (prim, ek iş, part-time) "Maaş". Hiç seçilmediyse: öğrenciye "Burs", diğerlerine "Maaş".
     function paraTuru(kaynaklar = gelirKaynaklari, d = aktifDurum()) {
       const k = Array.isArray(kaynaklar) ? kaynaklar : [];
-      const maas = { ad: "Maaş", kucuk: "maaş", yonelme: "Maaşa", tamlayan: "Maaşının", sahip: "Maaşın", ikon: "💼" };
-      const burs = { ad: "Burs", kucuk: "burs", yonelme: "Bursa", tamlayan: "Bursunun", sahip: "Bursun", ikon: "🎓" };
-      const harclik = { ad: "Harçlık", kucuk: "harçlık", yonelme: "Harçlığa", tamlayan: "Harçlığının", sahip: "Harçlığın", ikon: "💸" };
+      // belirtme: "Maaşını gelir olarak ekle" · yalinBelirtme: "Maaşı her ay otomatik ekle"
+      // kategoriler: "otomatik ekle" formunda seçilecek gelir kategorisi (ilk uygun olan)
+      const maas = { ad: "Maaş", kucuk: "maaş", yonelme: "Maaşa", tamlayan: "Maaşının", sahip: "Maaşın", ikon: "💼",
+                     belirtme: "Maaşını", yalinBelirtme: "Maaşı", kategoriler: ["Maaş"] };
+      const burs = { ad: "Burs", kucuk: "burs", yonelme: "Bursa", tamlayan: "Bursunun", sahip: "Bursun", ikon: "🎓",
+                     belirtme: "Bursunu", yalinBelirtme: "Bursu",
+                     kategoriler: k.includes("Özel Burs") && !k.includes("KYK Bursu") ? ["Özel Burs", "KYK Bursu"] : ["KYK Bursu", "Özel Burs"] };
+      const harclik = { ad: "Harçlık", kucuk: "harçlık", yonelme: "Harçlığa", tamlayan: "Harçlığının", sahip: "Harçlığın", ikon: "💸",
+                        belirtme: "Harçlığını", yalinBelirtme: "Harçlığı", kategoriler: ["Aile Harçlığı"] };
       if (k.includes("Maaş")) return maas;
       if (k.includes("KYK Bursu") || k.includes("Özel Burs")) return burs;
       if (k.includes("Aile Harçlığı")) return harclik;
@@ -1722,6 +1751,73 @@
       let toplam = 0;
       islemler.forEach(i => { toplam += i.tur === "gelir" ? i.tutar : -i.tutar; });
       return toplam - toplamBirikim();
+    }
+
+    // Maaş/Burs kutusundaki "günde ne kadar harcayabilirim" hesabı. Burs kutusu ve hatırlatma
+    // AYNI sonucu kullanır, böylece iki yer birbirine zıt şey söylemez.
+    //  • Gelire göre: elindeki para (tüm gelirler − giderler − birikimler) ÷ maaşa kalan gün
+    //  • Bütçeye göre: bu ay/haftanın bütçesinde kalan ÷ dönem SONUNA kalan gün (bugün dahil;
+    //    ör. 21 Kasım → 21–30 = 10 gün). Bütçe dönem sonunda yenilendiği için maaş gününe değil.
+    //  • İkisi de hesaplanabiliyorsa KÜÇÜK olan esas alınır.
+    //  • Elindeki para ≤ 0 ama bütçede para varsa bütçeye göre hesaplanır ("para kalmamış" denmez).
+    //  • Bütçe aşıldıysa → "butceAsildi"; gelir var ama para bitti, bütçe yok → "bitti";
+    //    ne gelir ne bütçe → "yok" (kullanıcıdan maaşını eklemesi ya da bütçe belirlemesi istenir).
+    function donemSonunaKalanGun(hangiMod) {
+      const b = new Date(); b.setHours(0, 0, 0, 0);
+      if (hangiMod === "hafta") return 7 - (b.getDay() + 6) % 7;       // Pazar dahil
+      return new Date(b.getFullYear(), b.getMonth() + 1, 0).getDate() - b.getDate() + 1; // ayın son günü dahil
+    }
+
+    function harcanabilirHesabi() {
+      if (!bursGunu) return null;
+      const { tarih, kalanGun } = sonrakiBursTarihi(bursGunu);
+      const geliriVar = islemler.some(i => i.tur === "gelir");
+      const butceMiktari = butce[mod] > 0 ? butce[mod] : 0;
+      const butceKalan = butceMiktari ? butceMiktari - toplamHarcama(simdikiDonem(mod), mod) : null;
+      const donemGun = donemSonunaKalanGun(mod);
+      const elindeki = geliriVar ? elindekiPara() : null;
+      const sonuc = { tarih, kalanGun, geliriVar, butceVar: !!butceMiktari, butceKalan, donemGun, elindeki,
+                      gelireGore: null, butceyeGore: null };
+
+      // İki ayrı hesap (yapılabiliyorsa)
+      if (geliriVar && elindeki > 0 && kalanGun > 0) sonuc.gelireGore = elindeki / kalanGun;
+      if (butceMiktari && butceKalan > 0) sonuc.butceyeGore = butceKalan / donemGun;
+
+      if (butceMiktari && butceKalan <= 0) {
+        sonuc.kaynak = "butceAsildi"; sonuc.gunluk = 0;          // bütçe bitti: küçük olan 0
+      } else if (sonuc.gelireGore !== null && sonuc.butceyeGore !== null) {
+        sonuc.kaynak = sonuc.gelireGore <= sonuc.butceyeGore ? "gelir" : "butce";
+        sonuc.gunluk = Math.min(sonuc.gelireGore, sonuc.butceyeGore);
+        sonuc.ikisiDe = true;
+      } else if (sonuc.butceyeGore !== null) {
+        sonuc.kaynak = "butce"; sonuc.gunluk = sonuc.butceyeGore;
+        sonuc.gelirYetmiyor = geliriVar && elindeki <= 0;
+      } else if (sonuc.gelireGore !== null) {
+        sonuc.kaynak = "gelir"; sonuc.gunluk = sonuc.gelireGore;
+      } else if (geliriVar && elindeki > 0) {
+        sonuc.kaynak = "gelir"; sonuc.gunluk = 0;                // maaş bugün yatıyor (bölünecek gün yok)
+      } else if (geliriVar) {
+        sonuc.kaynak = "bitti"; sonuc.gunluk = 0;
+      } else {
+        sonuc.kaynak = "yok"; sonuc.gunluk = 0;
+      }
+      return sonuc;
+    }
+
+    // "Maaşı her ay otomatik ekle": Ayarlar → Tekrarlayan formunu Maaş/Burs ile hazırlar
+    function maasiOtomatikEkle() {
+      const pt = paraTuru();
+      sekmeAc("ayarlar");
+      document.getElementById("tTur").value = "gelir";
+      kategorileriDoldur("tTur", "tKategori");
+      const secim = document.getElementById("tKategori");
+      const secenekler = [...secim.options].map(o => o.value);
+      const kategori = pt.kategoriler.find(k => secenekler.includes(k));
+      if (kategori) secim.value = kategori;
+      document.getElementById("tAciklama").value = pt.ad;
+      if (bursGunu) document.getElementById("tGun").value = bursGunu;
+      document.getElementById("tekrarPanel").scrollIntoView({ block: "start" });
+      document.getElementById("tTutar").focus();
     }
 
     function bursuGuncelle() {
@@ -1737,20 +1833,53 @@
         return;
       }
 
-      const elindeki = elindekiPara();
-      const birikim = toplamBirikim();
-      const { tarih, kalanGun } = sonrakiBursTarihi(bursGunu);
-      const tarihYazi = tarih.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
-      alt.textContent = `Toplam elindeki para: ${paraYaz(elindeki)} ` +
-        (birikim > 0 ? `(tüm gelirler − tüm giderler − birikimler)` : `(tüm gelirler − tüm giderler)`) +
-        ` · Sonraki ${pt.kucuk}: ${tarihYazi}`;
+      const h = harcanabilirHesabi();
+      const { kalanGun } = h;
+      const tarihYazi = h.tarih.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+      const maasaKaldi = kalanGun === 0 ? `🎉 <strong>${pt.ad} bugün yatıyor!</strong>`
+                                       : `${pt.yonelme} <strong>${kalanGun} gün</strong> kaldı`;
+      const donemSonu = mod === "hafta" ? "Haftanın bitmesine" : "Ay sonuna";
+      const donemKelime = mod === "hafta" ? "haftanın bitmesine" : "ay sonuna";
+      const birikimNotu = toplamBirikim() > 0 ? "tüm gelirler − tüm giderler − birikimler" : "tüm gelirler − tüm giderler";
 
-      if (kalanGun === 0) {
-        mesaj.innerHTML = `🎉 <strong>${pt.ad} bugün yatıyor!</strong>`;
-      } else if (elindeki <= 0) {
-        mesaj.innerHTML = `${pt.yonelme} <strong>${kalanGun} gün</strong> kaldı ama elinde harcayacak para kalmamış 😕`;
+      // Alt satır: hesabın neye göre yapıldığı
+      const parcalar = [];
+      if (h.kaynak === "gelir" && h.gunluk > 0) {
+        parcalar.push(`Gelire göre hesaplandı: elindeki ${paraYaz(h.elindeki)} (${birikimNotu}) ÷ ${pt.kucuk} gününe ${kalanGun} gün`);
+        if (h.ikisiDe) parcalar.push(`bütçeye göre günde ${paraYaz(h.butceyeGore)} olurdu; küçük olan esas alındı`);
+      } else if (h.kaynak === "butce") {
+        parcalar.push(`Bütçeye göre hesaplandı: bütçende kalan ${paraYaz(h.butceKalan)} ÷ ${donemKelime} ${h.donemGun} gün`);
+        if (h.ikisiDe) parcalar.push(`gelire göre günde ${paraYaz(h.gelireGore)} olurdu; küçük olan esas alındı`);
+        if (h.gelirYetmiyor) parcalar.push(`kayıtlı gelirlerin giderlerini karşılamıyor; ${pt.kucuk} gelirini eklemeyi unutmuş olabilirsin`);
+      } else if (h.kaynak === "butceAsildi") {
+        parcalar.push(`Bütçende kalan: ${paraYaz(h.butceKalan)}`);
+        if (h.geliriVar) parcalar.push(`elindeki para: ${paraYaz(h.elindeki)}`);
+      } else if (h.geliriVar) {
+        parcalar.push(`Toplam elindeki para: ${paraYaz(h.elindeki)} (${birikimNotu})`);
+      }
+      parcalar.push(`Sonraki ${pt.kucuk}: ${tarihYazi}`);
+      alt.textContent = parcalar.join(" · ");
+
+      // Ana mesaj (maaşa kalan gün her durumda ayrıca yazılır)
+      if (h.kaynak === "butce") {
+        mesaj.innerHTML = `${donemSonu} <strong>${h.donemGun} gün</strong> kaldı, bütçende kalan <strong>${paraYaz(h.butceKalan)}</strong> ` +
+          `ile günde <strong>${paraYaz(h.gunluk)}</strong> harcayabilirsin.<br>${maasaKaldi}.`;
+      } else if (h.kaynak === "gelir") {
+        mesaj.innerHTML = h.gunluk > 0 ? `${maasaKaldi}, günlük <strong>${paraYaz(h.gunluk)}</strong> harcayabilirsin.` : maasaKaldi;
+      } else if (h.kaynak === "butceAsildi") {
+        mesaj.innerHTML = `Bu dönemin bütçesini aştın, dönem bitene kadar dikkatli harca 😕<br>${maasaKaldi}.`;
+      } else if (h.kaynak === "bitti") {
+        mesaj.innerHTML = kalanGun === 0 ? maasaKaldi : `${maasaKaldi} ama elinde harcayacak para kalmamış 😕`;
       } else {
-        mesaj.innerHTML = `${pt.yonelme} <strong>${kalanGun} gün</strong> kaldı, günlük <strong>${paraYaz(elindeki / kalanGun)}</strong> harcayabilirsin.`;
+        // Ne gelir ne bütçe: hesaplanamaz
+        mesaj.innerHTML = (kalanGun === 0 ? maasaKaldi : maasaKaldi + ".") + "<br>";
+        mesaj.appendChild(document.createTextNode(`${pt.belirtme} gelir olarak ekle ya da bir bütçe belirle, günlük harcama sınırını hesaplayayım.`));
+        const d = document.createElement("button");
+        d.type = "button"; d.className = "kucuk-buton burs-eylem";
+        d.textContent = `🔁 ${pt.yalinBelirtme} her ay otomatik ekle`;
+        d.addEventListener("click", maasiOtomatikEkle);
+        mesaj.appendChild(document.createElement("br"));
+        mesaj.appendChild(d);
       }
     }
 
@@ -2260,7 +2389,7 @@
     function bugunuGuncelle() {
       let toplam = 0, adet = 0;
       islemler.forEach(i => {
-        if (i.tur === "gider" && i.tarih === bugunYazi) { toplam += i.tutar; adet++; }
+        if (i.tur === "gider" && i.tarih === bugunYazi()) { toplam += i.tutar; adet++; }
       });
       document.getElementById("bugunToplam").textContent = paraYaz(toplam);
       document.getElementById("bugunAdet").textContent =
@@ -2306,7 +2435,7 @@
           aciklama: hizliNot.value,   // boşsa islemEkle kategori adını yazar
           tutar: tutar,
           kategori: k.kategori,
-          tarih: bugunYazi,            // bugünün tarihi
+          tarih: bugunYazi(),            // bugünün tarihi
           hizli: true                  // Hızlı Ekle'den geldiğini belirtir
         };
         islemEkle(yeni);
@@ -2463,7 +2592,7 @@
 
         const hucre = document.createElement("button");
         hucre.type = "button";
-        hucre.className = "gun" + (tarih === bugunYazi ? " bugun-hucre" : "") + (tarih === secilenGun ? " secili" : "");
+        hucre.className = "gun" + (tarih === bugunYazi() ? " bugun-hucre" : "") + (tarih === secilenGun ? " secili" : "");
         hucre.style.setProperty("--hucre", `var(--isi${seviye})`);
         hucre.style.setProperty("--hucre-yazi", seviye >= 3 ? "var(--isi-yazi)" : "var(--yazi)");
         hucre.title = `${tarih}: ${paraYaz(tutar)}`;
@@ -2976,12 +3105,12 @@
     // Kapatılanlar sadece o gün için saklanır: { tarih: "18.11.2026", idler: [...] }
     function kapatilanlariOku() {
       const k = hafizadanOku("kapatilanHatirlatmalar", {});
-      return k.tarih === bugunYazi && Array.isArray(k.idler) ? k.idler : [];
+      return k.tarih === bugunYazi() && Array.isArray(k.idler) ? k.idler : [];
     }
     function hatirlatmayiKapat(id) {
       const idler = kapatilanlariOku();
       idler.push(id);
-      try { localStorage.setItem("kapatilanHatirlatmalar", JSON.stringify({ tarih: bugunYazi, idler })); } catch (e) {}
+      try { localStorage.setItem("kapatilanHatirlatmalar", JSON.stringify({ tarih: bugunYazi(), idler })); } catch (e) {}
       hatirlatmalariCiz();
     }
 
@@ -3004,18 +3133,24 @@
         }));
 
       // 2) Bursa / harçlığa 3 gün ya da daha az kaldıysa
-      if (bursGunu) {
-        const { kalanGun } = sonrakiBursTarihi(bursGunu);
+      // (Burs kutusuyla AYNI hesap: harcanabilirHesabi)
+      const h = harcanabilirHesabi();
+      if (h) {
+        const { kalanGun } = h;
         const pt = paraTuru();
-        const elindeki = elindekiPara();
         if (kalanGun === 0) {
           adaylar.push({ id: "burs", tur: "burs", ikon: "🎉",
             metin: `${pt.ad} bugün yatıyor! Yeni ayın bütçesine göz atmanın tam zamanı.` });
         } else if (kalanGun <= 3) {
-          adaylar.push({ id: "burs", tur: "burs", ikon: pt.ikon,
-            metin: `${pt.yonelme} ${kalanGun} gün kaldı. ` + (elindeki > 0
-              ? `Günde ${paraYaz(elindeki / kalanGun)} ile idare edebilirsin.`
-              : `Elindeki para bitmek üzere, biraz dikkat.`) });
+          const ek = {
+            gelir: `Günde ${paraYaz(h.gunluk)} ile idare edebilirsin.`,
+            butce: `Bütçende kalan paraya göre günde ${paraYaz(h.gunluk)} ile idare edebilirsin.`,
+            butceAsildi: `Bu dönemin bütçesini aştın, biraz dikkat.`,
+            bitti: `Elindeki para bitmek üzere, biraz dikkat.`,
+            yok: `${pt.belirtme} gelir olarak ekle ya da bir bütçe belirle, günlük sınırını hesaplayayım.`
+          }[h.kaynak];
+          adaylar.push({ id: "burs", tur: "burs", ikon: pt.ikon, metin: `${pt.yonelme} ${kalanGun} gün kaldı. ${ek}`,
+            eylem: h.kaynak === "yok" ? { yazi: `${pt.yalinBelirtme} otomatik ekle`, calis: maasiOtomatikEkle } : undefined });
         }
       }
 
@@ -3277,7 +3412,7 @@
       hesapEl("hesapSilTekrarGiris").style.display = "none";
       ortakTemizle();
       try { [ORTAK_SECILI, GIZLILIK_ONAY, GIRIS_ISARETI].forEach(k => localStorage.removeItem(k)); } catch (e) {}
-      gizlilikOnay = null; ortak.seciliId = null; gizlilikCiz();
+      gizlilikOnay = null; eskiOnayVar = false; ortak.seciliId = null; gizlilikCiz();
       hesapDurumYaz("");
       geriAlGoster("✓ Hesabın ve bulut verilerin silindi. Kişisel verilerin bu telefonda duruyor.", null);
     }
@@ -3352,9 +3487,14 @@
     };
     const oEl = id => document.getElementById(id);
 
-    // Gizlilik onayı: bu telefonda hatırlanır ({ tarih: "gg.aa.yyyy" }). Onaysız cüzdan oluşturulamaz/katılınamaz.
+    // Gizlilik onayı: bu telefonda hatırlanır. Onaysız cüzdan oluşturulamaz/katılınamaz.
+    // Sürüm 2 (KVKK): iki ayrı onay — aydınlatma metni okundu + yurt dışına aktarıma açık rıza.
+    // Eski onaylar ({ tarih } ya da surum < 2) geçersiz sayılır → yeni metin için bir kez daha sorulur.
     const GIZLILIK_ONAY = "ortakGizlilikOnay";
-    let gizlilikOnay = hafizadanOku(GIZLILIK_ONAY, null);
+    const GIZLILIK_SURUM = 2;
+    const gizlilikGecerli = o => !!(o && o.surum >= GIZLILIK_SURUM && o.aydinlatma && o.yurtdisiRiza);
+    let eskiOnayVar = !!hafizadanOku(GIZLILIK_ONAY, null); // eski metni onaylamış mı (bilgi notu için)
+    let gizlilikOnay = gizlilikGecerli(hafizadanOku(GIZLILIK_ONAY, null)) ? hafizadanOku(GIZLILIK_ONAY, null) : null;
 
     // Aynı metin iki yerde: Ortak sekmesindeki bilgilendirme ve Ayarlar → Gizlilik
     document.querySelectorAll(".gizlilik-yer").forEach(function (yer) {
@@ -3364,7 +3504,8 @@
     function gizlilikCiz() {
       const onayli = !!gizlilikOnay;
       oEl("ortakGizlilik").style.display = onayli ? "none" : "";
-      oEl("gizlilikOnayKutusu").checked = false;
+      oEl("gizlilikYenilendi").style.display = !onayli && eskiOnayVar ? "" : "none";
+      if (onayli) { oEl("onayAydinlatma").checked = false; oEl("onayYurtdisi").checked = false; }
       oEl("ortakOnayGerekli").style.display = onayli ? "none" : "";
       oEl("oOlustur").disabled = !onayli;
       oEl("oKatil").disabled = !onayli;
@@ -3373,13 +3514,16 @@
         : "Ortak cüzdan kullanmadan önce Ortak sekmesinde onaylaman istenir.";
     }
 
-    oEl("gizlilikOnayKutusu").addEventListener("change", function () {
-      if (!this.checked) return;
-      gizlilikOnay = { tarih: bugunYazi };
+    // İki kutu da işaretlenince onay kaydedilir
+    function gizlilikKutulariDegisti() {
+      if (!oEl("onayAydinlatma").checked || !oEl("onayYurtdisi").checked) return;
+      gizlilikOnay = { surum: GIZLILIK_SURUM, tarih: bugunYazi(), aydinlatma: true, yurtdisiRiza: true };
       try { localStorage.setItem(GIZLILIK_ONAY, JSON.stringify(gizlilikOnay)); } catch (e) {}
       gizlilikCiz();
       geriAlGoster("✓ Onaylandı. Artık cüzdan oluşturabilir ya da katılabilirsin.", null);
-    });
+    }
+    oEl("onayAydinlatma").addEventListener("change", gizlilikKutulariDegisti);
+    oEl("onayYurtdisi").addEventListener("change", gizlilikKutulariDegisti);
     gizlilikCiz();
 
     // Onay yoksa işlemi durdur ve bilgilendirmeyi göster
@@ -3730,7 +3874,7 @@
       const { db, ff } = ortak;
       ortakYaz(ff.addDoc(ff.collection(db, "cuzdanlar", c.id, "harcamalar"), {
         tur: "odeme", tutarKurus: b.kurus, kimden: b.kimden, kime: b.kime,
-        tarih: bugunYazi, ekleyen: ortak.uid, olusturma: ff.serverTimestamp()
+        tarih: bugunYazi(), ekleyen: ortak.uid, olusturma: ff.serverTimestamp()
       }), "İşaretlenemedi.");
       geriAlGoster("✓ Borç ödendi olarak işaretlendi", null);
     }
@@ -3910,6 +4054,31 @@
     // "Bitir"e basınca durum kaydedilir ve bir daha çıkmaz.
     // Eski kullanıcılarda cevaplar hazır dolu gelir (ad, "Öğrenciyim", burs günü…); verilere dokunulmaz.
     if (!kullaniciAdi || !KATEGORI_SETLERI[durum]) tanismaAc(false);
+
+    // ---------- GÜN DEĞİŞİNCE EKRANI YENİLE ----------
+    // Uygulama gece açık kalıp ertesi gün öne gelirse (ya da açıkken gece yarısı geçerse):
+    // Bugün toplamı, dönem seçimi, tarih kutuları, tekrarlayan işlemler ve hatırlatmalar yenilenir.
+    let sonBilinenGun = bugun(); // "yyyy-aa-gg"
+    function gunDegistiyseYenile() {
+      const yeniGun = bugun();
+      if (yeniGun === sonBilinenGun) return;
+      const eskiGun = sonBilinenGun;
+      sonBilinenGun = yeniGun;
+      const [y, a, g] = eskiGun.split("-");
+      const eskiDonem = donemAnahtari(`${g}.${a}.${y}`, mod);
+      // Tarih kutuları dünde kaldıysa (kullanıcı başka bir tarih seçmediyse) bugüne getir
+      if (tarihKutusu.value === eskiGun) tarihKutusu.value = yeniGun;
+      if (oEl("oTarih").value === eskiGun) oEl("oTarih").value = yeniGun;
+      tekrarlariIsle();
+      // Dönem listesi "bu ay/hafta"da duruyorsa yeni döneme geç; başka dönem seçiliyse ona dokunma
+      donemleriDoldur(donemSec.value === eskiDonem ? simdikiDonem(mod) : undefined);
+      ekraniGuncelle(); // Bugün toplamı, bütçe, maaş/burs kutusu, takvim, hatırlatmalar
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") gunDegistiyseYenile();
+    });
+    window.addEventListener("focus", gunDegistiyseYenile);
+    setInterval(gunDegistiyseYenile, 60000); // açık dururken gece yarısı geçerse
 
     // ---------- İNTERNETSİZ ÇALIŞMA (PWA) ----------
     // sw.js dosyasını tarayıcıya tanıtır; uygulama dosyaları telefona kaydedilir

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Gizlilik · CebimeGetir</title>
+  <meta name="theme-color" content="#f4f6ef">
+  <link rel="icon" type="image/png" sizes="192x192" href="ikon-192.png">
+  <!-- Uygulamada seçili temayı uygula (butce.html ile aynı kural). Dış kaynak yüklenmez. -->
+  <script>
+    try {
+      var zeminler = { pudra: "#fbf5ee", adacayi: "#f4f6ef", okyanus: "#eef4f6",
+                       gece: "#1c1920", seftali: "#fdf4ec", grafit: "#14181f" };
+      var secili = JSON.parse(localStorage.getItem("tema"));
+      if (!zeminler[secili]) {
+        var eski = JSON.parse(localStorage.getItem("ad") || "null") || (localStorage.getItem("islemler") || "[]") !== "[]";
+        secili = eski ? "pudra" : "adacayi";
+      }
+      document.documentElement.setAttribute("data-tema", secili);
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", zeminler[secili]);
+    } catch (e) {}
+  </script>
+  <style>
+    /* Renkler butce.html'deki temalarla aynı */
+    :root, :root[data-tema="pudra"] {
+      --zemin: #fbf5ee; --kart: #fffdf9; --yuzey: #fbefea; --kenar: #efe2d8;
+      --mor: #c98a83; --vurgu: #a9665f; --yazi: #4a3a35; --soluk: #93827a; color-scheme: light;
+    }
+    :root[data-tema="adacayi"] { --zemin: #f4f6ef; --kart: #fdfdf8; --yuzey: #eef2e6; --kenar: #dfe5d3; --mor: #7d9468; --vurgu: #5a7349; --yazi: #33402c; --soluk: #7f8a76; }
+    :root[data-tema="okyanus"] { --zemin: #eef4f6; --kart: #fbfdfe; --yuzey: #e8f1f5; --kenar: #d7e5eb; --mor: #4f8fa8; --vurgu: #2f6a80; --yazi: #22343c; --soluk: #6b8590; }
+    :root[data-tema="seftali"] { --zemin: #fdf4ec; --kart: #fffcf8; --yuzey: #fdeee3; --kenar: #f2e0d0; --mor: #e08a6b; --vurgu: #b8603f; --yazi: #4a362c; --soluk: #9a8070; }
+    :root[data-tema="gece"]    { --zemin: #1c1920; --kart: #26222b; --yuzey: #2f2a34; --kenar: #3a3440; --mor: #c7837c; --vurgu: #eab0a8; --yazi: #ece4e6; --soluk: #a59aa3; color-scheme: dark; }
+    :root[data-tema="grafit"]  { --zemin: #14181f; --kart: #1b2129; --yuzey: #222a35; --kenar: #2a323d; --mor: #22c38e; --vurgu: #4fd8a8; --yazi: #e6edf3; --soluk: #8b98a8; color-scheme: dark; }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--zemin); color: var(--yazi);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px; line-height: 1.6;
+    }
+    main { max-width: 720px; margin: 0 auto; padding: 16px 16px 48px; }
+    .geri {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+      background: var(--kart); border: 1px solid var(--kenar); color: var(--vurgu);
+      text-decoration: none; font-weight: 600; font-size: 15px;
+    }
+    h1 { font-size: 24px; line-height: 1.3; color: var(--vurgu); margin: 20px 0 4px; }
+    .tarih { color: var(--soluk); font-size: 14px; margin: 0 0 16px; }
+    .ozet {
+      background: var(--yuzey); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px;
+      border-left: 4px solid var(--mor);
+    }
+    section {
+      background: var(--kart); border: 1px solid var(--kenar); border-radius: 16px;
+      padding: 4px 18px 10px; margin-bottom: 12px;
+    }
+    h2 { font-size: 18px; color: var(--vurgu); margin: 14px 0 6px; }
+    h2 .no { color: var(--soluk); font-weight: 600; margin-right: 4px; }
+    ul, ol { padding-left: 22px; margin: 6px 0 10px; }
+    li { margin-bottom: 5px; }
+    p { margin: 6px 0 10px; }
+    a { color: var(--vurgu); }
+    .doldur { background: #ffe9a8; color: #5a4300; padding: 0 4px; border-radius: 4px; font-weight: 600; }
+    footer { text-align: center; color: var(--soluk); font-size: 14px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+<main>
+  <a class="geri" href="butce.html">← Uygulamaya dön</a>
+
+  <h1>KVKK Aydınlatma Metni ve Gizlilik Politikası</h1>
+  <p class="tarih">Son güncelleme: 21 Kasım 2026</p>
+
+  <div class="ozet">
+    <strong>Kısaca:</strong> Kendi harcamaların, bütçen ve hedeflerin yalnızca telefonunda kalır; biz
+    bunları görmeyiz ve toplamayız. Sadece isteğe bağlı <strong>Google ile giriş</strong> ve
+    <strong>👭 Ortak cüzdan</strong> özelliklerini kullanırsan, aşağıda yazan veriler işlenir.
+    Hesabını ve bulut verilerini uygulamanın içinden istediğin zaman silebilirsin.
+  </div>
+
+  <section>
+    <h2><span class="no">1.</span>Veri sorumlusu</h2>
+    <p>
+      6698 sayılı Kişisel Verilerin Korunması Kanunu (“KVKK”) kapsamında veri sorumlusu:
+      <strong>Neslihan AYDIN</strong><br>
+      İletişim: <a href="mailto:aydinneslihannnnn3580@gmail.com">aydinneslihannnnn3580@gmail.com</a>
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">2.</span>Hangi kişisel verileri işliyoruz?</h2>
+    <p>Yalnızca Google ile giriş yapar ve Ortak cüzdanı kullanırsan:</p>
+    <ul>
+      <li><strong>Kimlik ve iletişim bilgileri (Google hesabından):</strong> adın, e-posta adresin, profil fotoğrafın
+        ve Google’ın verdiği hesap kimliği.</li>
+      <li><strong>Ortak cüzdan bilgileri:</strong> cüzdan adı, üyeler (adları ve hesap kimlikleri), davet kodu.</li>
+      <li><strong>Ortak harcamalar:</strong> tutar, açıklama, kategori, tarih, kimin ödediği,
+        kimlerin paylaştığı ve “borç ödendi” kayıtları.</li>
+    </ul>
+    <p>Cüzdan üyeleri senin yalnızca adını görür; e-posta adresin ve profil fotoğrafın onlara gösterilmez.</p>
+  </section>
+
+  <section>
+    <h2><span class="no">3.</span>Kişisel bütçe verilerin telefonunda kalır</h2>
+    <p>
+      Kendi harcamaların, gelirlerin, bütçen, kategori limitlerin, birikim hedeflerin, hatırlatmaların ve
+      profil tercihlerin yalnızca kullandığın cihazda (tarayıcının yerel depolamasında) saklanır.
+      Bu veriler hiçbir sunucuya gönderilmez, bizim tarafımızdan <strong>toplanmaz ve görülmez</strong>.
+      Giriş yapmadan da uygulamanın tamamını kullanabilirsin. Uygulamadaki “Yedekleme” ile indirdiğin
+      dosya da yalnızca senin cihazına kaydedilir.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">4.</span>Verileri hangi amaçlarla işliyoruz?</h2>
+    <ul>
+      <li>Google hesabınla güvenli giriş yapabilmen ve hesabını tanıyabilmek,</li>
+      <li>ortak cüzdan oluşturabilmen, davet koduyla başkalarının katılabilmesi,</li>
+      <li>ortak harcamaları cüzdan üyeleriyle paylaşmak,</li>
+      <li>kim kime ne kadar borçlu olduğunu hesaplamak,</li>
+      <li>internet yokken eklediğin ortak harcamaların bağlantı gelince gönderilmesi,</li>
+      <li>yetkisiz erişimi engellemek ve verilerin güvenliğini sağlamak.</li>
+    </ul>
+    <p>Verilerin reklam, profilleme veya pazarlama amacıyla kullanılmaz, satılmaz.</p>
+  </section>
+
+  <section>
+    <h2><span class="no">5.</span>Hukuki sebepler (KVKK md. 5)</h2>
+    <ul>
+      <li><strong>Bir sözleşmenin kurulması veya ifası (md. 5/2-c):</strong> Google ile giriş ve ortak cüzdan
+        hizmetini sana sunabilmek için gerekli veriler.</li>
+      <li><strong>Açık rıza (md. 5/1):</strong> Ortak cüzdanı kullanmadan önce uygulamada verdiğin onay;
+        özellikle verilerin yurt dışına aktarılması için.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="no">6.</span>Veriler kimlere aktarılır?</h2>
+    <ul>
+      <li><strong>Ortak cüzdan üyeleri:</strong> Üyesi olduğun cüzdandaki adın ve ortak harcamalar, yalnızca
+        o cüzdanın üyeleriyle paylaşılır.</li>
+      <li><strong>Altyapı sağlayıcısı – Google LLC (Firebase):</strong> Giriş (Firebase Authentication) ve
+        ortak cüzdan verilerinin saklanması (Cloud Firestore) için hizmet aldığımız sağlayıcıdır.
+        Google, verileri bizim adımıza ve talimatlarımız doğrultusunda işler.</li>
+      <li>Kanunen yetkili kamu kurum ve kuruluşları: yalnızca yasal bir zorunluluk olursa.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="no">7.</span>Yurt dışına aktarım (KVKK md. 9)</h2>
+    <p>
+      Ortak cüzdan verileri Google’ın <strong>Frankfurt (Almanya)</strong>’daki sunucularında saklanır.
+      Google ile giriş bilgileri (ad, e-posta, profil fotoğrafı, hesap kimliği) Firebase Authentication
+      hizmeti tarafından işlenir; Google bu bilgileri <strong>ABD dahil</strong> kendi küresel sunucularında
+      da işleyebilir. Bu aktarım, uygulamada verdiğin <strong>açık rızaya</strong> dayanır.
+      Rıza vermezsen ortak cüzdanı kullanamazsın, ancak uygulamanın geri kalanını (kişisel bütçe)
+      giriş yapmadan kullanmaya devam edebilirsin.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">8.</span>Veriler nasıl toplanır?</h2>
+    <p>
+      Veriler elektronik ortamda, otomatik yollarla toplanır: Google ile giriş yaptığında Google hesabından
+      (ad, e-posta, fotoğraf) ve Ortak sekmesine kendin girdiğin bilgilerden (cüzdan adı, harcamalar).
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">9.</span>Ne kadar süre saklanır?</h2>
+    <p>
+      Verilerin, <strong>hesabını silene kadar</strong> saklanır. Uygulamada
+      <strong>Ayarlar → Hesap → “Hesabımı ve bulut verilerimi sil”</strong> dediğinde:
+    </p>
+    <ul>
+      <li>üye olduğun tüm ortak cüzdanlardan çıkarılırsın ve adın silinir,</li>
+      <li>eklediğin ortak harcamalar ve “borç ödendi” kayıtları silinir,</li>
+      <li>tek üyesi olduğun cüzdanlar tamamen silinir,</li>
+      <li>giriş hesabın (Firebase) silinir.</li>
+    </ul>
+    <p>
+      Başka üyelerin eklediği harcamalarda “ödeyen” ya da “paylaşan” olarak yalnızca rastgele hesap
+      kimliğin kalabilir; bu kimlik adını veya e-postanı içermez. Google’ın yedekleme sistemlerindeki kopyalar,
+      Google’ın kendi silme süreleri içinde kalıcı olarak silinir.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">10.</span>Çerezler ve analitik</h2>
+    <p>
+      Uygulama <strong>çerez kullanmaz</strong>; Google Analytics veya başka bir analitik / reklam / takip
+      aracı <strong>kullanılmaz</strong>. Verilerin cihazında tarayıcının yerel depolamasında tutulur.
+      Giriş yaptıysan, oturumunun açık kalması için Firebase de bu depolamayı kullanır.
+    </p>
+    <p>
+      Not: Uygulamanın yazı tipleri ve giriş kütüphanesi Google sunucularından indirilir. Bu dosyalar
+      indirilirken, internetin çalışma şekli gereği IP adresin Google’a ulaşır; biz bu bilgiyi toplamayız.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">11.</span>Hakların (KVKK md. 11)</h2>
+    <p>Veri sorumlusuna başvurarak şunları talep edebilirsin:</p>
+    <ol type="a">
+      <li>Kişisel verilerinin işlenip işlenmediğini öğrenme,</li>
+      <li>işlenmişse buna ilişkin bilgi isteme,</li>
+      <li>işlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+      <li>yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,</li>
+      <li>eksik veya yanlış işlenmişse düzeltilmesini isteme,</li>
+      <li>KVKK md. 7’deki şartlar çerçevesinde silinmesini veya yok edilmesini isteme,</li>
+      <li>(e) ve (f) kapsamındaki işlemlerin, verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li>
+      <li>işlenen verilerin yalnızca otomatik sistemlerle analiz edilmesi sonucu aleyhine bir sonuç
+        çıkmasına itiraz etme,</li>
+      <li>kanuna aykırı işleme nedeniyle zarara uğrarsan zararın giderilmesini talep etme.</li>
+    </ol>
+    <p>
+      <strong>Açık rızanı geri çekmek</strong> için uygulamada “Hesabımı ve bulut verilerimi sil” düğmesini
+      kullanabilirsin; bu işlem verilerini hemen siler.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">12.</span>Nasıl başvurabilirsin?</h2>
+    <p>
+      Taleplerini <a href="mailto:aydinneslihannnnn3580@gmail.com">aydinneslihannnnn3580@gmail.com</a> adresine, adını ve uygulamada kullandığın
+      Google e-posta adresini belirterek gönderebilirsin. Başvurun en geç <strong>30 gün</strong> içinde
+      ücretsiz olarak yanıtlanır. Yanıtı yeterli bulmazsan Kişisel Verileri Koruma Kurulu’na şikâyette
+      bulunabilirsin.
+    </p>
+  </section>
+
+  <section>
+    <h2><span class="no">13.</span>Değişiklikler</h2>
+    <p>
+      Bu metin değişirse yeni hali bu sayfada yayımlanır ve “Son güncelleme” tarihi değişir. Önemli
+      değişikliklerde Ortak cüzdanı kullanmaya devam etmeden önce uygulamada onayın yeniden istenir.
+    </p>
+  </section>
+
+  <footer>CebimeGetir · <a href="butce.html">Uygulamaya dön</a></footer>
+</main>
+</body>
+</html>
